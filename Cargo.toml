@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_mysql"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["outersky <outersky@gmail.com>"]
 license = "MIT"
 description = "MySQL support for the r2d2 connection pool"
