@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["connect","Convienent method to connect to database"]],"trait":[["IntoConnectParams","A trait implemented by types that can be converted into a `ConnectParams`."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["IsolationLevel",""]],"mod":[["pool",""]],"struct":[["Column","Mysql `Column`."],["MyConn","Mysql connection."],["MyOpts","Mysql connection options."],["QueryResult","Mysql result set for text and binary protocols."],["Stmt","Mysql prepared statement."],["Transaction",""]]});

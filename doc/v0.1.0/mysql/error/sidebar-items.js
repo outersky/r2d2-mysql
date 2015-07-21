@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DriverError",""],["MyError",""],["ServerError","Server error codes (u16)"]],"struct":[["ErrPacket",""]],"type":[["MyResult",""]]});
