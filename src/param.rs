@@ -58,6 +58,11 @@ pub enum ConnectError {
     IoError(io::Error),
 }
 
+/// Convienent method to connect to database
+///
+/// ```
+/// let mut conn = connect("mysql://root:12345678@localhost:3306/db_name");
+/// ```
 pub fn connect<T>(into_params : T) -> MyResult<MyConn>
     where T:IntoConnectParams+Sized {
     let params = into_params.into_connect_params().unwrap();
