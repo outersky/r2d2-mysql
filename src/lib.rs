@@ -133,7 +133,7 @@
 //! }
 //! ```
 
-
+#![doc(html_root_url="http://outersky.github.io/r2d2-mysql/doc/v0.1.0/r2d2_mysql/")]
 #![crate_name="r2d2_mysql"]
 #![crate_type="rlib"]
 #![crate_type="dylib"]

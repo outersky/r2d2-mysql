@@ -1,5 +1,6 @@
 # r2d2-mysql
-MySQL support for the r2d2 connection pool (Rust) . see [`r2d2`](http://github.com/sfackler/r2d2.git)  .
+[`rust-mysql-simple`](https://github.com/blackbeam/rust-mysql-simple) support library for the [`r2d2`](https://github.com/sfackler/r2d2) connection pool.
+Documentation is available at [http://outersky.github.io/r2d2-mysql/doc/v0.1.0/r2d2_mysql](http://outersky.github.io/r2d2-mysql/doc/v0.1.0/r2d2_mysql)
 
 #### Install
 Just include another `[dependencies.*]` section into your Cargo.toml:
@@ -9,7 +10,7 @@ Just include another `[dependencies.*]` section into your Cargo.toml:
 git = "https://github.com/outersky/r2d2-mysql"
 version="0.1.0"
 ```
-#### Sample
+#### Example
 
 ```rust,no_run
 extern crate r2d2_mysql;
@@ -29,7 +30,6 @@ fn main() {
     for i in 0..3 {
         let pool = pool.clone();
         let th = thread::spawn(move || {
-            println!("thread {} running" , i );
             let mut conn = pool.get().unwrap();
             conn.query("select user()").unwrap();
             println!("thread {} end!" , i );
@@ -43,7 +43,7 @@ fn main() {
 }
 ```
 
-#### Sample2
+#### Example 2
 
 convert a `Stmt` to `RowSet`, and fetch data using `Row.get("column_name")`
 
