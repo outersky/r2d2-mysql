@@ -52,9 +52,9 @@ extern crate mysql;
 extern crate rustc_serialize as serialize;
 extern crate r2d2;
 
-mod param;
-mod url;
-mod pool;
+pub mod param;
+pub mod url;
+pub mod pool;
 
 pub use pool::MysqlConnectionManager;
 pub use param::connect;
