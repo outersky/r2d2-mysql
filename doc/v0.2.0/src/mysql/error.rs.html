@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `/Users/tony/.cargo/registry/src/github.com-0a35038f75765ae4/mysql-0.16.0/src/error.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>error.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+</pre><pre class='rust '>
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Display</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>;
+
+<span class='kw'>use</span> <span class='ident'>byteorder</span>::<span class='ident'>Error</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;openssl&quot;</span>)]</span>
+<span class='kw'>use</span> <span class='ident'>openssl</span>::<span class='ident'>ssl</span>::<span class='ident'>error</span>::{<span class='ident'>SslError</span>};
+
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>packet</span>::<span class='ident'>ErrPacket</span>;
+
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>MyError</span> {
+    <span class='ident'>MyIoError</span>(<span class='ident'>io</span>::<span class='ident'>Error</span>),
+    <span class='ident'>MySqlError</span>(<span class='ident'>ErrPacket</span>),
+    <span class='ident'>MyDriverError</span>(<span class='ident'>DriverError</span>),
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;openssl&quot;</span>)]</span>
+    <span class='ident'>MySslError</span>(<span class='ident'>SslError</span>),
+}
+
+<span class='kw'>impl</span> <span class='ident'>error</span>::<span class='ident'>Error</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ssl&quot;</span>)]</span>
+    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;I/O Error&quot;</span>,
+            <span class='ident'>MyError</span>::<span class='ident'>MySqlError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;MySql server error&quot;</span>,
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;driver error&quot;</span>,
+            <span class='ident'>MyError</span>::<span class='ident'>MySslError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;ssl error&quot;</span>,
+        }
+    }
+
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>not</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ssl&quot;</span>))]</span>
+    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;I/O Error&quot;</span>,
+            <span class='ident'>MyError</span>::<span class='ident'>MySqlError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;MySql server error&quot;</span>,
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;driver error&quot;</span>,
+        }
+    }
+
+    <span class='kw'>fn</span> <span class='ident'>cause</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>error</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(<span class='kw-2'>ref</span> <span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>err</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(<span class='kw-2'>ref</span> <span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>err</span>),
+            _ <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
+        }
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>io</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>err</span>: <span class='ident'>io</span>::<span class='ident'>Error</span>) <span class='op'>-&gt;</span> <span class='ident'>MyError</span> {
+        <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(<span class='ident'>err</span>)
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Error</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>err</span>: <span class='ident'>Error</span>) <span class='op'>-&gt;</span> <span class='ident'>MyError</span> {
+        <span class='kw'>let</span> <span class='ident'>io_err</span>: <span class='ident'>io</span>::<span class='ident'>Error</span> <span class='op'>=</span> <span class='ident'>From</span>::<span class='ident'>from</span>(<span class='ident'>err</span>);
+        <span class='ident'>From</span>::<span class='ident'>from</span>(<span class='ident'>io_err</span>)
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>DriverError</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>err</span>: <span class='ident'>DriverError</span>) <span class='op'>-&gt;</span> <span class='ident'>MyError</span> {
+        <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(<span class='ident'>err</span>)
+    }
+}
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;openssl&quot;</span>)]</span>
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>SslError</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>err</span>: <span class='ident'>SslError</span>) <span class='op'>-&gt;</span> <span class='ident'>MyError</span> {
+        <span class='ident'>MyError</span>::<span class='ident'>MySslError</span>(<span class='ident'>err</span>)
+    }
+}
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ssl&quot;</span>)]</span>
+<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(<span class='kw-2'>ref</span> <span class='ident'>io_err</span>) <span class='op'>=&gt;</span> <span class='ident'>io_err</span>.<span class='ident'>fmt</span>(<span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MySqlError</span>(<span class='kw-2'>ref</span> <span class='ident'>err_packet</span>) <span class='op'>=&gt;</span> <span class='ident'>err_packet</span>.<span class='ident'>fmt</span>(<span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(<span class='kw-2'>ref</span> <span class='ident'>driver_err</span>) <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{}&quot;</span>, <span class='ident'>driver_err</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MySslError</span>(<span class='kw-2'>ref</span> <span class='ident'>ssl_error</span>) <span class='op'>=&gt;</span> <span class='ident'>ssl_error</span>.<span class='ident'>fmt</span>(<span class='ident'>f</span>),
+        }
+    }
+}
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>not</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ssl&quot;</span>))]</span>
+<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(<span class='kw-2'>ref</span> <span class='ident'>io_err</span>) <span class='op'>=&gt;</span> <span class='ident'>io_err</span>.<span class='ident'>fmt</span>(<span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MySqlError</span>(<span class='kw-2'>ref</span> <span class='ident'>err_packet</span>) <span class='op'>=&gt;</span> <span class='ident'>err_packet</span>.<span class='ident'>fmt</span>(<span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(<span class='kw-2'>ref</span> <span class='ident'>driver_err</span>) <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{:?}&quot;</span>, <span class='ident'>driver_err</span>),
+        }
+    }
+}
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ssl&quot;</span>)]</span>
+<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(<span class='kw-2'>ref</span> <span class='ident'>io_err</span>) <span class='op'>=&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span>::<span class='ident'>fmt</span>(<span class='ident'>io_err</span>, <span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MySqlError</span>(<span class='kw-2'>ref</span> <span class='ident'>err_packet</span>) <span class='op'>=&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span>::<span class='ident'>fmt</span>(<span class='ident'>err_packet</span>, <span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(<span class='kw-2'>ref</span> <span class='ident'>driver_err</span>) <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{}&quot;</span>, <span class='ident'>driver_err</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MySslError</span>(<span class='kw-2'>ref</span> <span class='ident'>ssl_error</span>) <span class='op'>=&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span>::<span class='ident'>fmt</span>(<span class='ident'>ssl_error</span>, <span class='ident'>f</span>),
+        }
+    }
+}
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>not</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ssl&quot;</span>))]</span>
+<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span> <span class='kw'>for</span> <span class='ident'>MyError</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>MyError</span>::<span class='ident'>MyIoError</span>(<span class='kw-2'>ref</span> <span class='ident'>io_err</span>) <span class='op'>=&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span>::<span class='ident'>fmt</span>(<span class='ident'>io_err</span>, <span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MySqlError</span>(<span class='kw-2'>ref</span> <span class='ident'>err_packet</span>) <span class='op'>=&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span>::<span class='ident'>fmt</span>(<span class='ident'>err_packet</span>, <span class='ident'>f</span>),
+            <span class='ident'>MyError</span>::<span class='ident'>MyDriverError</span>(<span class='kw-2'>ref</span> <span class='ident'>driver_err</span>) <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{:?}&quot;</span>, <span class='ident'>driver_err</span>),
+        }
+    }
+}
+
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>DriverError</span> {
+    <span class='ident'>CouldNotConnect</span>(<span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>),
+    <span class='ident'>UnsupportedProtocol</span>(<span class='ident'>u8</span>),
+    <span class='ident'>PacketOutOfSync</span>,
+    <span class='ident'>PacketTooLarge</span>,
+    <span class='ident'>Protocol41NotSet</span>,
+    <span class='ident'>UnexpectedPacket</span>,
+    <span class='ident'>MismatchedStmtParams</span>(<span class='ident'>u16</span>, <span class='ident'>usize</span>),
+    <span class='ident'>InvalidPoolConstraints</span>,
+    <span class='ident'>SetupError</span>,
+    <span class='ident'>SslNotSupported</span>,
+    <span class='ident'>CouldNotParseVersion</span>,
+    <span class='ident'>ReadOnlyTransNotSupported</span>,
+    <span class='ident'>PoisonedPoolMutex</span>,
+}
+
+<span class='kw'>impl</span> <span class='ident'>error</span>::<span class='ident'>Error</span> <span class='kw'>for</span> <span class='ident'>DriverError</span> {
+    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
+        <span class='string'>&quot;MySql driver error&quot;</span>
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>DriverError</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>DriverError</span>::<span class='ident'>CouldNotConnect</span>(<span class='prelude-val'>None</span>) <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Could not connect: address not specified&quot;</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>CouldNotConnect</span>(<span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>addr</span>)) <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Could not connect to address: {}&quot;</span>, <span class='ident'>addr</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>UnsupportedProtocol</span>(<span class='ident'>proto_version</span>) <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Unsupported protocol version {}&quot;</span>, <span class='ident'>proto_version</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>PacketOutOfSync</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Packet out of sync&quot;</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>PacketTooLarge</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Packet too large&quot;</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>Protocol41NotSet</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Server must set CLIENT_PROTOCOL_41 flag&quot;</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>UnexpectedPacket</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Unexpected packet&quot;</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>MismatchedStmtParams</span>(<span class='ident'>exp</span>, <span class='ident'>prov</span>) <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Statement takes {} parameters but {} was supplied&quot;</span>, <span class='ident'>exp</span>, <span class='ident'>prov</span>)
+            }
+            <span class='ident'>DriverError</span>::<span class='ident'>InvalidPoolConstraints</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Invalid pool constraints&quot;</span>)
+            },
+            <span class='ident'>DriverError</span>::<span class='ident'>SetupError</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Could not setup connection&quot;</span>)
+            },
+            <span class='ident'>DriverError</span>::<span class='ident'>SslNotSupported</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Client requires secure connection but server \
+                           does not have this capability&quot;</span>)
+            },
+            <span class='ident'>DriverError</span>::<span class='ident'>CouldNotParseVersion</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Could not parse MySQL version&quot;</span>)
+            },
+            <span class='ident'>DriverError</span>::<span class='ident'>ReadOnlyTransNotSupported</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Read-only transactions does not \
+                           supported in your MySQL version&quot;</span>)
+            },
+            <span class='ident'>DriverError</span>::<span class='ident'>PoisonedPoolMutex</span> <span class='op'>=&gt;</span> {
+                <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Poisoned pool mutex&quot;</span>)
+            }
+        }
+    }
+}
+
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>MyResult</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>MyError</span><span class='op'>&gt;</span>;
+
+<span class='doccomment'>/// Server error codes (u16)</span>
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_camel_case_types</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>u16</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ServerError</span> {
+    <span class='ident'>ER_HASHCHK</span> <span class='op'>=</span> <span class='number'>1000u16</span>,
+    <span class='ident'>ER_NISAMCHK</span> <span class='op'>=</span> <span class='number'>1001u16</span>,
+    <span class='ident'>ER_NO</span> <span class='op'>=</span> <span class='number'>1002u16</span>,
+    <span class='ident'>ER_YES</span> <span class='op'>=</span> <span class='number'>1003u16</span>,
+    <span class='ident'>ER_CANT_CREATE_FILE</span> <span class='op'>=</span> <span class='number'>1004u16</span>,
+    <span class='ident'>ER_CANT_CREATE_TABLE</span> <span class='op'>=</span> <span class='number'>1005u16</span>,
+    <span class='ident'>ER_CANT_CREATE_DB</span> <span class='op'>=</span> <span class='number'>1006u16</span>,
+    <span class='ident'>ER_DB_CREATE_EXISTS</span> <span class='op'>=</span> <span class='number'>1007u16</span>,
+    <span class='ident'>ER_DB_DROP_EXISTS</span> <span class='op'>=</span> <span class='number'>1008u16</span>,
+    <span class='ident'>ER_DB_DROP_DELETE</span> <span class='op'>=</span> <span class='number'>1009u16</span>,
+    <span class='ident'>ER_DB_DROP_RMDIR</span> <span class='op'>=</span> <span class='number'>1010u16</span>,
+    <span class='ident'>ER_CANT_DELETE_FILE</span> <span class='op'>=</span> <span class='number'>1011u16</span>,
+    <span class='ident'>ER_CANT_FIND_SYSTEM_REC</span> <span class='op'>=</span> <span class='number'>1012u16</span>,
+    <span class='ident'>ER_CANT_GET_STAT</span> <span class='op'>=</span> <span class='number'>1013u16</span>,
+    <span class='ident'>ER_CANT_GET_WD</span> <span class='op'>=</span> <span class='number'>1014u16</span>,
+    <span class='ident'>ER_CANT_LOCK</span> <span class='op'>=</span> <span class='number'>1015u16</span>,
+    <span class='ident'>ER_CANT_OPEN_FILE</span> <span class='op'>=</span> <span class='number'>1016u16</span>,
+    <span class='ident'>ER_FILE_NOT_FOUND</span> <span class='op'>=</span> <span class='number'>1017u16</span>,
+    <span class='ident'>ER_CANT_READ_DIR</span> <span class='op'>=</span> <span class='number'>1018u16</span>,
+    <span class='ident'>ER_CANT_SET_WD</span> <span class='op'>=</span> <span class='number'>1019u16</span>,
+    <span class='ident'>ER_CHECKREAD</span> <span class='op'>=</span> <span class='number'>1020u16</span>,
+    <span class='ident'>ER_DISK_FULL</span> <span class='op'>=</span> <span class='number'>1021u16</span>,
+    <span class='ident'>ER_DUP_KEY</span> <span class='op'>=</span> <span class='number'>1022u16</span>,
+    <span class='ident'>ER_ERROR_ON_CLOSE</span> <span class='op'>=</span> <span class='number'>1023u16</span>,
+    <span class='ident'>ER_ERROR_ON_READ</span> <span class='op'>=</span> <span class='number'>1024u16</span>,
+    <span class='ident'>ER_ERROR_ON_RENAME</span> <span class='op'>=</span> <span class='number'>1025u16</span>,
+    <span class='ident'>ER_ERROR_ON_WRITE</span> <span class='op'>=</span> <span class='number'>1026u16</span>,
+    <span class='ident'>ER_FILE_USED</span> <span class='op'>=</span> <span class='number'>1027u16</span>,
+    <span class='ident'>ER_FILSORT_ABORT</span> <span class='op'>=</span> <span class='number'>1028u16</span>,
+    <span class='ident'>ER_FORM_NOT_FOUND</span> <span class='op'>=</span> <span class='number'>1029u16</span>,
+    <span class='ident'>ER_GET_ERRNO</span> <span class='op'>=</span> <span class='number'>1030u16</span>,
+    <span class='ident'>ER_ILLEGAL_HA</span> <span class='op'>=</span> <span class='number'>1031u16</span>,
+    <span class='ident'>ER_KEY_NOT_FOUND</span> <span class='op'>=</span> <span class='number'>1032u16</span>,
+    <span class='ident'>ER_NOT_FORM_FILE</span> <span class='op'>=</span> <span class='number'>1033u16</span>,
+    <span class='ident'>ER_NOT_KEYFILE</span> <span class='op'>=</span> <span class='number'>1034u16</span>,
+    <span class='ident'>ER_OLD_KEYFILE</span> <span class='op'>=</span> <span class='number'>1035u16</span>,
+    <span class='ident'>ER_OPEN_AS_READONLY</span> <span class='op'>=</span> <span class='number'>1036u16</span>,
+    <span class='ident'>ER_OUTOFMEMORY</span> <span class='op'>=</span> <span class='number'>1037u16</span>,
+    <span class='ident'>ER_OUT_OF_SORTMEMORY</span> <span class='op'>=</span> <span class='number'>1038u16</span>,
+    <span class='ident'>ER_UNEXPECTED_EOF</span> <span class='op'>=</span> <span class='number'>1039u16</span>,
+    <span class='ident'>ER_CON_COUNT_ERROR</span> <span class='op'>=</span> <span class='number'>1040u16</span>,
+    <span class='ident'>ER_OUT_OF_RESOURCES</span> <span class='op'>=</span> <span class='number'>1041u16</span>,
+    <span class='ident'>ER_BAD_HOST_ERROR</span> <span class='op'>=</span> <span class='number'>1042u16</span>,
+    <span class='ident'>ER_HANDSHAKE_ERROR</span> <span class='op'>=</span> <span class='number'>1043u16</span>,
+    <span class='ident'>ER_DBACCESS_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1044u16</span>,
+    <span class='ident'>ER_ACCESS_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1045u16</span>,
+    <span class='ident'>ER_NO_DB_ERROR</span> <span class='op'>=</span> <span class='number'>1046u16</span>,
+    <span class='ident'>ER_UNKNOWN_COM_ERROR</span> <span class='op'>=</span> <span class='number'>1047u16</span>,
+    <span class='ident'>ER_BAD_NULL_ERROR</span> <span class='op'>=</span> <span class='number'>1048u16</span>,
+    <span class='ident'>ER_BAD_DB_ERROR</span> <span class='op'>=</span> <span class='number'>1049u16</span>,
+    <span class='ident'>ER_TABLE_EXISTS_ERROR</span> <span class='op'>=</span> <span class='number'>1050u16</span>,
+    <span class='ident'>ER_BAD_TABLE_ERROR</span> <span class='op'>=</span> <span class='number'>1051u16</span>,
+    <span class='ident'>ER_NON_UNIQ_ERROR</span> <span class='op'>=</span> <span class='number'>1052u16</span>,
+    <span class='ident'>ER_SERVER_SHUTDOWN</span> <span class='op'>=</span> <span class='number'>1053u16</span>,
+    <span class='ident'>ER_BAD_FIELD_ERROR</span> <span class='op'>=</span> <span class='number'>1054u16</span>,
+    <span class='ident'>ER_WRONG_FIELD_WITH_GROUP</span> <span class='op'>=</span> <span class='number'>1055u16</span>,
+    <span class='ident'>ER_WRONG_GROUP_FIELD</span> <span class='op'>=</span> <span class='number'>1056u16</span>,
+    <span class='ident'>ER_WRONG_SUM_SELECT</span> <span class='op'>=</span> <span class='number'>1057u16</span>,
+    <span class='ident'>ER_WRONG_VALUE_COUNT</span> <span class='op'>=</span> <span class='number'>1058u16</span>,
+    <span class='ident'>ER_TOO_LONG_IDENT</span> <span class='op'>=</span> <span class='number'>1059u16</span>,
+    <span class='ident'>ER_DUP_FIELDNAME</span> <span class='op'>=</span> <span class='number'>1060u16</span>,
+    <span class='ident'>ER_DUP_KEYNAME</span> <span class='op'>=</span> <span class='number'>1061u16</span>,
+    <span class='ident'>ER_DUP_ENTRY</span> <span class='op'>=</span> <span class='number'>1062u16</span>,
+    <span class='ident'>ER_WRONG_FIELD_SPEC</span> <span class='op'>=</span> <span class='number'>1063u16</span>,
+    <span class='ident'>ER_PARSE_ERROR</span> <span class='op'>=</span> <span class='number'>1064u16</span>,
+    <span class='ident'>ER_EMPTY_QUERY</span> <span class='op'>=</span> <span class='number'>1065u16</span>,
+    <span class='ident'>ER_NONUNIQ_TABLE</span> <span class='op'>=</span> <span class='number'>1066u16</span>,
+    <span class='ident'>ER_INVALID_DEFAULT</span> <span class='op'>=</span> <span class='number'>1067u16</span>,
+    <span class='ident'>ER_MULTIPLE_PRI_KEY</span> <span class='op'>=</span> <span class='number'>1068u16</span>,
+    <span class='ident'>ER_TOO_MANY_KEYS</span> <span class='op'>=</span> <span class='number'>1069u16</span>,
+    <span class='ident'>ER_TOO_MANY_KEY_PARTS</span> <span class='op'>=</span> <span class='number'>1070u16</span>,
+    <span class='ident'>ER_TOO_LONG_KEY</span> <span class='op'>=</span> <span class='number'>1071u16</span>,
+    <span class='ident'>ER_KEY_COLUMN_DOES_NOT_EXITS</span> <span class='op'>=</span> <span class='number'>1072u16</span>,
+    <span class='ident'>ER_BLOB_USED_AS_KEY</span> <span class='op'>=</span> <span class='number'>1073u16</span>,
+    <span class='ident'>ER_TOO_BIG_FIELDLENGTH</span> <span class='op'>=</span> <span class='number'>1074u16</span>,
+    <span class='ident'>ER_WRONG_AUTO_KEY</span> <span class='op'>=</span> <span class='number'>1075u16</span>,
+    <span class='ident'>ER_READY</span> <span class='op'>=</span> <span class='number'>1076u16</span>,
+    <span class='ident'>ER_NORMAL_SHUTDOWN</span> <span class='op'>=</span> <span class='number'>1077u16</span>,
+    <span class='ident'>ER_GOT_SIGNAL</span> <span class='op'>=</span> <span class='number'>1078u16</span>,
+    <span class='ident'>ER_SHUTDOWN_COMPLETE</span> <span class='op'>=</span> <span class='number'>1079u16</span>,
+    <span class='ident'>ER_FORCING_CLOSE</span> <span class='op'>=</span> <span class='number'>1080u16</span>,
+    <span class='ident'>ER_IPSOCK_ERROR</span> <span class='op'>=</span> <span class='number'>1081u16</span>,
+    <span class='ident'>ER_NO_SUCH_INDEX</span> <span class='op'>=</span> <span class='number'>1082u16</span>,
+    <span class='ident'>ER_WRONG_FIELD_TERMINATORS</span> <span class='op'>=</span> <span class='number'>1083u16</span>,
+    <span class='ident'>ER_BLOBS_AND_NO_TERMINATED</span> <span class='op'>=</span> <span class='number'>1084u16</span>,
+    <span class='ident'>ER_TEXTFILE_NOT_READABLE</span> <span class='op'>=</span> <span class='number'>1085u16</span>,
+    <span class='ident'>ER_FILE_EXISTS_ERROR</span> <span class='op'>=</span> <span class='number'>1086u16</span>,
+    <span class='ident'>ER_LOAD_INFO</span> <span class='op'>=</span> <span class='number'>1087u16</span>,
+    <span class='ident'>ER_ALTER_INFO</span> <span class='op'>=</span> <span class='number'>1088u16</span>,
+    <span class='ident'>ER_WRONG_SUB_KEY</span> <span class='op'>=</span> <span class='number'>1089u16</span>,
+    <span class='ident'>ER_CANT_REMOVE_ALL_FIELDS</span> <span class='op'>=</span> <span class='number'>1090u16</span>,
+    <span class='ident'>ER_CANT_DROP_FIELD_OR_KEY</span> <span class='op'>=</span> <span class='number'>1091u16</span>,
+    <span class='ident'>ER_INSERT_INFO</span> <span class='op'>=</span> <span class='number'>1092u16</span>,
+    <span class='ident'>ER_UPDATE_TABLE_USED</span> <span class='op'>=</span> <span class='number'>1093u16</span>,
+    <span class='ident'>ER_NO_SUCH_THREAD</span> <span class='op'>=</span> <span class='number'>1094u16</span>,
+    <span class='ident'>ER_KILL_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1095u16</span>,
+    <span class='ident'>ER_NO_TABLES_USED</span> <span class='op'>=</span> <span class='number'>1096u16</span>,
+    <span class='ident'>ER_TOO_BIG_SET</span> <span class='op'>=</span> <span class='number'>1097u16</span>,
+    <span class='ident'>ER_NO_UNIQUE_LOGFILE</span> <span class='op'>=</span> <span class='number'>1098u16</span>,
+    <span class='ident'>ER_TABLE_NOT_LOCKED_FOR_WRITE</span> <span class='op'>=</span> <span class='number'>1099u16</span>,
+    <span class='ident'>ER_TABLE_NOT_LOCKED</span> <span class='op'>=</span> <span class='number'>1100u16</span>,
+    <span class='ident'>ER_BLOB_CANT_HAVE_DEFAULT</span> <span class='op'>=</span> <span class='number'>1101u16</span>,
+    <span class='ident'>ER_WRONG_DB_NAME</span> <span class='op'>=</span> <span class='number'>1102u16</span>,
+    <span class='ident'>ER_WRONG_TABLE_NAME</span> <span class='op'>=</span> <span class='number'>1103u16</span>,
+    <span class='ident'>ER_TOO_BIG_SELECT</span> <span class='op'>=</span> <span class='number'>1104u16</span>,
+    <span class='ident'>ER_UNKNOWN_ERROR</span> <span class='op'>=</span> <span class='number'>1105u16</span>,
+    <span class='ident'>ER_UNKNOWN_PROCEDURE</span> <span class='op'>=</span> <span class='number'>1106u16</span>,
+    <span class='ident'>ER_WRONG_PARAMCOUNT_TO_PROCEDURE</span> <span class='op'>=</span> <span class='number'>1107u16</span>,
+    <span class='ident'>ER_WRONG_PARAMETERS_TO_PROCEDURE</span> <span class='op'>=</span> <span class='number'>1108u16</span>,
+    <span class='ident'>ER_UNKNOWN_TABLE</span> <span class='op'>=</span> <span class='number'>1109u16</span>,
+    <span class='ident'>ER_FIELD_SPECIFIED_TWICE</span> <span class='op'>=</span> <span class='number'>1110u16</span>,
+    <span class='ident'>ER_INVALID_GROUP_FUNC_USE</span> <span class='op'>=</span> <span class='number'>1111u16</span>,
+    <span class='ident'>ER_UNSUPPORTED_EXTENSION</span> <span class='op'>=</span> <span class='number'>1112u16</span>,
+    <span class='ident'>ER_TABLE_MUST_HAVE_COLUMNS</span> <span class='op'>=</span> <span class='number'>1113u16</span>,
+    <span class='ident'>ER_RECORD_FILE_FULL</span> <span class='op'>=</span> <span class='number'>1114u16</span>,
+    <span class='ident'>ER_UNKNOWN_CHARACTER_SET</span> <span class='op'>=</span> <span class='number'>1115u16</span>,
+    <span class='ident'>ER_TOO_MANY_TABLES</span> <span class='op'>=</span> <span class='number'>1116u16</span>,
+    <span class='ident'>ER_TOO_MANY_FIELDS</span> <span class='op'>=</span> <span class='number'>1117u16</span>,
+    <span class='ident'>ER_TOO_BIG_ROWSIZE</span> <span class='op'>=</span> <span class='number'>1118u16</span>,
+    <span class='ident'>ER_STACK_OVERRUN</span> <span class='op'>=</span> <span class='number'>1119u16</span>,
+    <span class='ident'>ER_WRONG_OUTER_JOIN</span> <span class='op'>=</span> <span class='number'>1120u16</span>,
+    <span class='ident'>ER_NULL_COLUMN_IN_INDEX</span> <span class='op'>=</span> <span class='number'>1121u16</span>,
+    <span class='ident'>ER_CANT_FIND_UDF</span> <span class='op'>=</span> <span class='number'>1122u16</span>,
+    <span class='ident'>ER_CANT_INITIALIZE_UDF</span> <span class='op'>=</span> <span class='number'>1123u16</span>,
+    <span class='ident'>ER_UDF_NO_PATHS</span> <span class='op'>=</span> <span class='number'>1124u16</span>,
+    <span class='ident'>ER_UDF_EXISTS</span> <span class='op'>=</span> <span class='number'>1125u16</span>,
+    <span class='ident'>ER_CANT_OPEN_LIBRARY</span> <span class='op'>=</span> <span class='number'>1126u16</span>,
+    <span class='ident'>ER_CANT_FIND_DL_ENTRY</span> <span class='op'>=</span> <span class='number'>1127u16</span>,
+    <span class='ident'>ER_FUNCTION_NOT_DEFINED</span> <span class='op'>=</span> <span class='number'>1128u16</span>,
+    <span class='ident'>ER_HOST_IS_BLOCKED</span> <span class='op'>=</span> <span class='number'>1129u16</span>,
+    <span class='ident'>ER_HOST_NOT_PRIVILEGED</span> <span class='op'>=</span> <span class='number'>1130u16</span>,
+    <span class='ident'>ER_PASSWORD_ANONYMOUS_USER</span> <span class='op'>=</span> <span class='number'>1131u16</span>,
+    <span class='ident'>ER_PASSWORD_NOT_ALLOWED</span> <span class='op'>=</span> <span class='number'>1132u16</span>,
+    <span class='ident'>ER_PASSWORD_NO_MATCH</span> <span class='op'>=</span> <span class='number'>1133u16</span>,
+    <span class='ident'>ER_UPDATE_INFO</span> <span class='op'>=</span> <span class='number'>1134u16</span>,
+    <span class='ident'>ER_CANT_CREATE_THREAD</span> <span class='op'>=</span> <span class='number'>1135u16</span>,
+    <span class='ident'>ER_WRONG_VALUE_COUNT_ON_ROW</span> <span class='op'>=</span> <span class='number'>1136u16</span>,
+    <span class='ident'>ER_CANT_REOPEN_TABLE</span> <span class='op'>=</span> <span class='number'>1137u16</span>,
+    <span class='ident'>ER_INVALID_USE_OF_NULL</span> <span class='op'>=</span> <span class='number'>1138u16</span>,
+    <span class='ident'>ER_REGEXP_ERROR</span> <span class='op'>=</span> <span class='number'>1139u16</span>,
+    <span class='ident'>ER_MIX_OF_GROUP_FUNC_AND_FIELDS</span> <span class='op'>=</span> <span class='number'>1140u16</span>,
+    <span class='ident'>ER_NONEXISTING_GRANT</span> <span class='op'>=</span> <span class='number'>1141u16</span>,
+    <span class='ident'>ER_TABLEACCESS_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1142u16</span>,
+    <span class='ident'>ER_COLUMNACCESS_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1143u16</span>,
+    <span class='ident'>ER_ILLEGAL_GRANT_FOR_TABLE</span> <span class='op'>=</span> <span class='number'>1144u16</span>,
+    <span class='ident'>ER_GRANT_WRONG_HOST_OR_USER</span> <span class='op'>=</span> <span class='number'>1145u16</span>,
+    <span class='ident'>ER_NO_SUCH_TABLE</span> <span class='op'>=</span> <span class='number'>1146u16</span>,
+    <span class='ident'>ER_NONEXISTING_TABLE_GRANT</span> <span class='op'>=</span> <span class='number'>1147u16</span>,
+    <span class='ident'>ER_NOT_ALLOWED_COMMAND</span> <span class='op'>=</span> <span class='number'>1148u16</span>,
+    <span class='ident'>ER_SYNTAX_ERROR</span> <span class='op'>=</span> <span class='number'>1149u16</span>,
+    <span class='ident'>ER_DELAYED_CANT_CHANGE_LOCK</span> <span class='op'>=</span> <span class='number'>1150u16</span>,
+    <span class='ident'>ER_TOO_MANY_DELAYED_THREADS</span> <span class='op'>=</span> <span class='number'>1151u16</span>,
+    <span class='ident'>ER_ABORTING_CONNECTION</span> <span class='op'>=</span> <span class='number'>1152u16</span>,
+    <span class='ident'>ER_NET_PACKET_TOO_LARGE</span> <span class='op'>=</span> <span class='number'>1153u16</span>,
+    <span class='ident'>ER_NET_READ_ERROR_FROM_PIPE</span> <span class='op'>=</span> <span class='number'>1154u16</span>,
+    <span class='ident'>ER_NET_FCNTL_ERROR</span> <span class='op'>=</span> <span class='number'>1155u16</span>,
+    <span class='ident'>ER_NET_PACKETS_OUT_OF_ORDER</span> <span class='op'>=</span> <span class='number'>1156u16</span>,
+    <span class='ident'>ER_NET_UNCOMPRESS_ERROR</span> <span class='op'>=</span> <span class='number'>1157u16</span>,
+    <span class='ident'>ER_NET_READ_ERROR</span> <span class='op'>=</span> <span class='number'>1158u16</span>,
+    <span class='ident'>ER_NET_READ_INTERRUPTED</span> <span class='op'>=</span> <span class='number'>1159u16</span>,
+    <span class='ident'>ER_NET_ERROR_ON_WRITE</span> <span class='op'>=</span> <span class='number'>1160u16</span>,
+    <span class='ident'>ER_NET_WRITE_INTERRUPTED</span> <span class='op'>=</span> <span class='number'>1161u16</span>,
+    <span class='ident'>ER_TOO_LONG_STRING</span> <span class='op'>=</span> <span class='number'>1162u16</span>,
+    <span class='ident'>ER_TABLE_CANT_HANDLE_BLOB</span> <span class='op'>=</span> <span class='number'>1163u16</span>,
+    <span class='ident'>ER_TABLE_CANT_HANDLE_AUTO_INCREMENT</span> <span class='op'>=</span> <span class='number'>1164u16</span>,
+    <span class='ident'>ER_DELAYED_INSERT_TABLE_LOCKED</span> <span class='op'>=</span> <span class='number'>1165u16</span>,
+    <span class='ident'>ER_WRONG_COLUMN_NAME</span> <span class='op'>=</span> <span class='number'>1166u16</span>,
+    <span class='ident'>ER_WRONG_KEY_COLUMN</span> <span class='op'>=</span> <span class='number'>1167u16</span>,
+    <span class='ident'>ER_WRONG_MRG_TABLE</span> <span class='op'>=</span> <span class='number'>1168u16</span>,
+    <span class='ident'>ER_DUP_UNIQUE</span> <span class='op'>=</span> <span class='number'>1169u16</span>,
+    <span class='ident'>ER_BLOB_KEY_WITHOUT_LENGTH</span> <span class='op'>=</span> <span class='number'>1170u16</span>,
+    <span class='ident'>ER_PRIMARY_CANT_HAVE_NULL</span> <span class='op'>=</span> <span class='number'>1171u16</span>,
+    <span class='ident'>ER_TOO_MANY_ROWS</span> <span class='op'>=</span> <span class='number'>1172u16</span>,
+    <span class='ident'>ER_REQUIRES_PRIMARY_KEY</span> <span class='op'>=</span> <span class='number'>1173u16</span>,
+    <span class='ident'>ER_NO_RAID_COMPILED</span> <span class='op'>=</span> <span class='number'>1174u16</span>,
+    <span class='ident'>ER_UPDATE_WITHOUT_KEY_IN_SAFE_MODE</span> <span class='op'>=</span> <span class='number'>1175u16</span>,
+    <span class='ident'>ER_KEY_DOES_NOT_EXITS</span> <span class='op'>=</span> <span class='number'>1176u16</span>,
+    <span class='ident'>ER_CHECK_NO_SUCH_TABLE</span> <span class='op'>=</span> <span class='number'>1177u16</span>,
+    <span class='ident'>ER_CHECK_NOT_IMPLEMENTED</span> <span class='op'>=</span> <span class='number'>1178u16</span>,
+    <span class='ident'>ER_CANT_DO_THIS_DURING_AN_TRANSACTION</span> <span class='op'>=</span> <span class='number'>1179u16</span>,
+    <span class='ident'>ER_ERROR_DURING_COMMIT</span> <span class='op'>=</span> <span class='number'>1180u16</span>,
+    <span class='ident'>ER_ERROR_DURING_ROLLBACK</span> <span class='op'>=</span> <span class='number'>1181u16</span>,
+    <span class='ident'>ER_ERROR_DURING_FLUSH_LOGS</span> <span class='op'>=</span> <span class='number'>1182u16</span>,
+    <span class='ident'>ER_ERROR_DURING_CHECKPOINT</span> <span class='op'>=</span> <span class='number'>1183u16</span>,
+    <span class='ident'>ER_NEW_ABORTING_CONNECTION</span> <span class='op'>=</span> <span class='number'>1184u16</span>,
+    <span class='ident'>ER_DUMP_NOT_IMPLEMENTED</span> <span class='op'>=</span> <span class='number'>1185u16</span>,
+    <span class='ident'>ER_FLUSH_MASTER_BINLOG_CLOSED</span> <span class='op'>=</span> <span class='number'>1186u16</span>,
+    <span class='ident'>ER_INDEX_REBUILD</span> <span class='op'>=</span> <span class='number'>1187u16</span>,
+    <span class='ident'>ER_MASTER</span> <span class='op'>=</span> <span class='number'>1188u16</span>,
+    <span class='ident'>ER_MASTER_NET_READ</span> <span class='op'>=</span> <span class='number'>1189u16</span>,
+    <span class='ident'>ER_MASTER_NET_WRITE</span> <span class='op'>=</span> <span class='number'>1190u16</span>,
+    <span class='ident'>ER_FT_MATCHING_KEY_NOT_FOUND</span> <span class='op'>=</span> <span class='number'>1191u16</span>,
+    <span class='ident'>ER_LOCK_OR_ACTIVE_TRANSACTION</span> <span class='op'>=</span> <span class='number'>1192u16</span>,
+    <span class='ident'>ER_UNKNOWN_SYSTEM_VARIABLE</span> <span class='op'>=</span> <span class='number'>1193u16</span>,
+    <span class='ident'>ER_CRASHED_ON_USAGE</span> <span class='op'>=</span> <span class='number'>1194u16</span>,
+    <span class='ident'>ER_CRASHED_ON_REPAIR</span> <span class='op'>=</span> <span class='number'>1195u16</span>,
+    <span class='ident'>ER_WARNING_NOT_COMPLETE_ROLLBACK</span> <span class='op'>=</span> <span class='number'>1196u16</span>,
+    <span class='ident'>ER_TRANS_CACHE_FULL</span> <span class='op'>=</span> <span class='number'>1197u16</span>,
+    <span class='ident'>ER_SLAVE_MUST_STOP</span> <span class='op'>=</span> <span class='number'>1198u16</span>,
+    <span class='ident'>ER_SLAVE_NOT_RUNNING</span> <span class='op'>=</span> <span class='number'>1199u16</span>,
+    <span class='ident'>ER_BAD_SLAVE</span> <span class='op'>=</span> <span class='number'>1200u16</span>,
+    <span class='ident'>ER_MASTER_INFO</span> <span class='op'>=</span> <span class='number'>1201u16</span>,
+    <span class='ident'>ER_SLAVE_THREAD</span> <span class='op'>=</span> <span class='number'>1202u16</span>,
+    <span class='ident'>ER_TOO_MANY_USER_CONNECTIONS</span> <span class='op'>=</span> <span class='number'>1203u16</span>,
+    <span class='ident'>ER_SET_CONSTANTS_ONLY</span> <span class='op'>=</span> <span class='number'>1204u16</span>,
+    <span class='ident'>ER_LOCK_WAIT_TIMEOUT</span> <span class='op'>=</span> <span class='number'>1205u16</span>,
+    <span class='ident'>ER_LOCK_TABLE_FULL</span> <span class='op'>=</span> <span class='number'>1206u16</span>,
+    <span class='ident'>ER_READ_ONLY_TRANSACTION</span> <span class='op'>=</span> <span class='number'>1207u16</span>,
+    <span class='ident'>ER_DROP_DB_WITH_READ_LOCK</span> <span class='op'>=</span> <span class='number'>1208u16</span>,
+    <span class='ident'>ER_CREATE_DB_WITH_READ_LOCK</span> <span class='op'>=</span> <span class='number'>1209u16</span>,
+    <span class='ident'>ER_WRONG_ARGUMENTS</span> <span class='op'>=</span> <span class='number'>1210u16</span>,
+    <span class='ident'>ER_NO_PERMISSION_TO_CREATE_USER</span> <span class='op'>=</span> <span class='number'>1211u16</span>,
+    <span class='ident'>ER_UNION_TABLES_IN_DIFFERENT_DIR</span> <span class='op'>=</span> <span class='number'>1212u16</span>,
+    <span class='ident'>ER_LOCK_DEADLOCK</span> <span class='op'>=</span> <span class='number'>1213u16</span>,
+    <span class='ident'>ER_TABLE_CANT_HANDLE_FT</span> <span class='op'>=</span> <span class='number'>1214u16</span>,
+    <span class='ident'>ER_CANNOT_ADD_FOREIGN</span> <span class='op'>=</span> <span class='number'>1215u16</span>,
+    <span class='ident'>ER_NO_REFERENCED_ROW</span> <span class='op'>=</span> <span class='number'>1216u16</span>,
+    <span class='ident'>ER_ROW_IS_REFERENCED</span> <span class='op'>=</span> <span class='number'>1217u16</span>,
+    <span class='ident'>ER_CONNECT_TO_MASTER</span> <span class='op'>=</span> <span class='number'>1218u16</span>,
+    <span class='ident'>ER_QUERY_ON_MASTER</span> <span class='op'>=</span> <span class='number'>1219u16</span>,
+    <span class='ident'>ER_ERROR_WHEN_EXECUTING_COMMAND</span> <span class='op'>=</span> <span class='number'>1220u16</span>,
+    <span class='ident'>ER_WRONG_USAGE</span> <span class='op'>=</span> <span class='number'>1221u16</span>,
+    <span class='ident'>ER_WRONG_NUMBER_OF_COLUMNS_IN_SELECT</span> <span class='op'>=</span> <span class='number'>1222u16</span>,
+    <span class='ident'>ER_CANT_UPDATE_WITH_READLOCK</span> <span class='op'>=</span> <span class='number'>1223u16</span>,
+    <span class='ident'>ER_MIXING_NOT_ALLOWED</span> <span class='op'>=</span> <span class='number'>1224u16</span>,
+    <span class='ident'>ER_DUP_ARGUMENT</span> <span class='op'>=</span> <span class='number'>1225u16</span>,
+    <span class='ident'>ER_USER_LIMIT_REACHED</span> <span class='op'>=</span> <span class='number'>1226u16</span>,
+    <span class='ident'>ER_SPECIFIC_ACCESS_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1227u16</span>,
+    <span class='ident'>ER_LOCAL_VARIABLE</span> <span class='op'>=</span> <span class='number'>1228u16</span>,
+    <span class='ident'>ER_GLOBAL_VARIABLE</span> <span class='op'>=</span> <span class='number'>1229u16</span>,
+    <span class='ident'>ER_NO_DEFAULT</span> <span class='op'>=</span> <span class='number'>1230u16</span>,
+    <span class='ident'>ER_WRONG_VALUE_FOR_VAR</span> <span class='op'>=</span> <span class='number'>1231u16</span>,
+    <span class='ident'>ER_WRONG_TYPE_FOR_VAR</span> <span class='op'>=</span> <span class='number'>1232u16</span>,
+    <span class='ident'>ER_VAR_CANT_BE_READ</span> <span class='op'>=</span> <span class='number'>1233u16</span>,
+    <span class='ident'>ER_CANT_USE_OPTION_HERE</span> <span class='op'>=</span> <span class='number'>1234u16</span>,
+    <span class='ident'>ER_NOT_SUPPORTED_YET</span> <span class='op'>=</span> <span class='number'>1235u16</span>,
+    <span class='ident'>ER_MASTER_FATAL_ERROR_READING_BINLOG</span> <span class='op'>=</span> <span class='number'>1236u16</span>,
+    <span class='ident'>ER_SLAVE_IGNORED_TABLE</span> <span class='op'>=</span> <span class='number'>1237u16</span>,
+    <span class='ident'>ER_INCORRECT_GLOBAL_LOCAL_VAR</span> <span class='op'>=</span> <span class='number'>1238u16</span>,
+    <span class='ident'>ER_WRONG_FK_DEF</span> <span class='op'>=</span> <span class='number'>1239u16</span>,
+    <span class='ident'>ER_KEY_REF_DO_NOT_MATCH_TABLE_REF</span> <span class='op'>=</span> <span class='number'>1240u16</span>,
+    <span class='ident'>ER_OPERAND_COLUMNS</span> <span class='op'>=</span> <span class='number'>1241u16</span>,
+    <span class='ident'>ER_SUBQUERY_NO_1_ROW</span> <span class='op'>=</span> <span class='number'>1242u16</span>,
+    <span class='ident'>ER_UNKNOWN_STMT_HANDLER</span> <span class='op'>=</span> <span class='number'>1243u16</span>,
+    <span class='ident'>ER_CORRUPT_HELP_DB</span> <span class='op'>=</span> <span class='number'>1244u16</span>,
+    <span class='ident'>ER_CYCLIC_REFERENCE</span> <span class='op'>=</span> <span class='number'>1245u16</span>,
+    <span class='ident'>ER_AUTO_CONVERT</span> <span class='op'>=</span> <span class='number'>1246u16</span>,
+    <span class='ident'>ER_ILLEGAL_REFERENCE</span> <span class='op'>=</span> <span class='number'>1247u16</span>,
+    <span class='ident'>ER_DERIVED_MUST_HAVE_ALIAS</span> <span class='op'>=</span> <span class='number'>1248u16</span>,
+    <span class='ident'>ER_SELECT_REDUCED</span> <span class='op'>=</span> <span class='number'>1249u16</span>,
+    <span class='ident'>ER_TABLENAME_NOT_ALLOWED_HERE</span> <span class='op'>=</span> <span class='number'>1250u16</span>,
+    <span class='ident'>ER_NOT_SUPPORTED_AUTH_MODE</span> <span class='op'>=</span> <span class='number'>1251u16</span>,
+    <span class='ident'>ER_SPATIAL_CANT_HAVE_NULL</span> <span class='op'>=</span> <span class='number'>1252u16</span>,
+    <span class='ident'>ER_COLLATION_CHARSET_MISMATCH</span> <span class='op'>=</span> <span class='number'>1253u16</span>,
+    <span class='ident'>ER_SLAVE_WAS_RUNNING</span> <span class='op'>=</span> <span class='number'>1254u16</span>,
+    <span class='ident'>ER_SLAVE_WAS_NOT_RUNNING</span> <span class='op'>=</span> <span class='number'>1255u16</span>,
+    <span class='ident'>ER_TOO_BIG_FOR_UNCOMPRESS</span> <span class='op'>=</span> <span class='number'>1256u16</span>,
+    <span class='ident'>ER_ZLIB_Z_MEM_ERROR</span> <span class='op'>=</span> <span class='number'>1257u16</span>,
+    <span class='ident'>ER_ZLIB_Z_BUF_ERROR</span> <span class='op'>=</span> <span class='number'>1258u16</span>,
+    <span class='ident'>ER_ZLIB_Z_DATA_ERROR</span> <span class='op'>=</span> <span class='number'>1259u16</span>,
+    <span class='ident'>ER_CUT_VALUE_GROUP_CONCAT</span> <span class='op'>=</span> <span class='number'>1260u16</span>,
+    <span class='ident'>ER_WARN_TOO_FEW_RECORDS</span> <span class='op'>=</span> <span class='number'>1261u16</span>,
+    <span class='ident'>ER_WARN_TOO_MANY_RECORDS</span> <span class='op'>=</span> <span class='number'>1262u16</span>,
+    <span class='ident'>ER_WARN_NULL_TO_NOTNULL</span> <span class='op'>=</span> <span class='number'>1263u16</span>,
+    <span class='ident'>ER_WARN_DATA_OUT_OF_RANGE</span> <span class='op'>=</span> <span class='number'>1264u16</span>,
+    <span class='ident'>WARN_DATA_TRUNCATED</span> <span class='op'>=</span> <span class='number'>1265u16</span>,
+    <span class='ident'>ER_WARN_USING_OTHER_HANDLER</span> <span class='op'>=</span> <span class='number'>1266u16</span>,
+    <span class='ident'>ER_CANT_AGGREGATE_2COLLATIONS</span> <span class='op'>=</span> <span class='number'>1267u16</span>,
+    <span class='ident'>ER_DROP_USER</span> <span class='op'>=</span> <span class='number'>1268u16</span>,
+    <span class='ident'>ER_REVOKE_GRANTS</span> <span class='op'>=</span> <span class='number'>1269u16</span>,
+    <span class='ident'>ER_CANT_AGGREGATE_3COLLATIONS</span> <span class='op'>=</span> <span class='number'>1270u16</span>,
+    <span class='ident'>ER_CANT_AGGREGATE_NCOLLATIONS</span> <span class='op'>=</span> <span class='number'>1271u16</span>,
+    <span class='ident'>ER_VARIABLE_IS_NOT_STRUCT</span> <span class='op'>=</span> <span class='number'>1272u16</span>,
+    <span class='ident'>ER_UNKNOWN_COLLATION</span> <span class='op'>=</span> <span class='number'>1273u16</span>,
+    <span class='ident'>ER_SLAVE_IGNORED_SSL_PARAMS</span> <span class='op'>=</span> <span class='number'>1274u16</span>,
+    <span class='ident'>ER_SERVER_IS_IN_SECURE_AUTH_MODE</span> <span class='op'>=</span> <span class='number'>1275u16</span>,
+    <span class='ident'>ER_WARN_FIELD_RESOLVED</span> <span class='op'>=</span> <span class='number'>1276u16</span>,
+    <span class='ident'>ER_BAD_SLAVE_UNTIL_COND</span> <span class='op'>=</span> <span class='number'>1277u16</span>,
+    <span class='ident'>ER_MISSING_SKIP_SLAVE</span> <span class='op'>=</span> <span class='number'>1278u16</span>,
+    <span class='ident'>ER_UNTIL_COND_IGNORED</span> <span class='op'>=</span> <span class='number'>1279u16</span>,
+    <span class='ident'>ER_WRONG_NAME_FOR_INDEX</span> <span class='op'>=</span> <span class='number'>1280u16</span>,
+    <span class='ident'>ER_WRONG_NAME_FOR_CATALOG</span> <span class='op'>=</span> <span class='number'>1281u16</span>,
+    <span class='ident'>ER_WARN_QC_RESIZE</span> <span class='op'>=</span> <span class='number'>1282u16</span>,
+    <span class='ident'>ER_BAD_FT_COLUMN</span> <span class='op'>=</span> <span class='number'>1283u16</span>,
+    <span class='ident'>ER_UNKNOWN_KEY_CACHE</span> <span class='op'>=</span> <span class='number'>1284u16</span>,
+    <span class='ident'>ER_WARN_HOSTNAME_WONT_WORK</span> <span class='op'>=</span> <span class='number'>1285u16</span>,
+    <span class='ident'>ER_UNKNOWN_STORAGE_ENGINE</span> <span class='op'>=</span> <span class='number'>1286u16</span>,
+    <span class='ident'>ER_WARN_DEPRECATED_SYNTAX</span> <span class='op'>=</span> <span class='number'>1287u16</span>,
+    <span class='ident'>ER_NON_UPDATABLE_TABLE</span> <span class='op'>=</span> <span class='number'>1288u16</span>,
+    <span class='ident'>ER_FEATURE_DISABLED</span> <span class='op'>=</span> <span class='number'>1289u16</span>,
+    <span class='ident'>ER_OPTION_PREVENTS_STATEMENT</span> <span class='op'>=</span> <span class='number'>1290u16</span>,
+    <span class='ident'>ER_DUPLICATED_VALUE_IN_TYPE</span> <span class='op'>=</span> <span class='number'>1291u16</span>,
+    <span class='ident'>ER_TRUNCATED_WRONG_VALUE</span> <span class='op'>=</span> <span class='number'>1292u16</span>,
+    <span class='ident'>ER_TOO_MUCH_AUTO_TIMESTAMP_COLS</span> <span class='op'>=</span> <span class='number'>1293u16</span>,
+    <span class='ident'>ER_INVALID_ON_UPDATE</span> <span class='op'>=</span> <span class='number'>1294u16</span>,
+    <span class='ident'>ER_UNSUPPORTED_PS</span> <span class='op'>=</span> <span class='number'>1295u16</span>,
+    <span class='ident'>ER_GET_ERRMSG</span> <span class='op'>=</span> <span class='number'>1296u16</span>,
+    <span class='ident'>ER_GET_TEMPORARY_ERRMSG</span> <span class='op'>=</span> <span class='number'>1297u16</span>,
+    <span class='ident'>ER_UNKNOWN_TIME_ZONE</span> <span class='op'>=</span> <span class='number'>1298u16</span>,
+    <span class='ident'>ER_WARN_INVALID_TIMESTAMP</span> <span class='op'>=</span> <span class='number'>1299u16</span>,
+    <span class='ident'>ER_INVALID_CHARACTER_STRING</span> <span class='op'>=</span> <span class='number'>1300u16</span>,
+    <span class='ident'>ER_WARN_ALLOWED_PACKET_OVERFLOWED</span> <span class='op'>=</span> <span class='number'>1301u16</span>,
+    <span class='ident'>ER_CONFLICTING_DECLARATIONS</span> <span class='op'>=</span> <span class='number'>1302u16</span>,
+    <span class='ident'>ER_SP_NO_RECURSIVE_CREATE</span> <span class='op'>=</span> <span class='number'>1303u16</span>,
+    <span class='ident'>ER_SP_ALREADY_EXISTS</span> <span class='op'>=</span> <span class='number'>1304u16</span>,
+    <span class='ident'>ER_SP_DOES_NOT_EXIST</span> <span class='op'>=</span> <span class='number'>1305u16</span>,
+    <span class='ident'>ER_SP_DROP_FAILED</span> <span class='op'>=</span> <span class='number'>1306u16</span>,
+    <span class='ident'>ER_SP_STORE_FAILED</span> <span class='op'>=</span> <span class='number'>1307u16</span>,
+    <span class='ident'>ER_SP_LILABEL_MISMATCH</span> <span class='op'>=</span> <span class='number'>1308u16</span>,
+    <span class='ident'>ER_SP_LABEL_REDEFINE</span> <span class='op'>=</span> <span class='number'>1309u16</span>,
+    <span class='ident'>ER_SP_LABEL_MISMATCH</span> <span class='op'>=</span> <span class='number'>1310u16</span>,
+    <span class='ident'>ER_SP_UNINIT_VAR</span> <span class='op'>=</span> <span class='number'>1311u16</span>,
+    <span class='ident'>ER_SP_BADSELECT</span> <span class='op'>=</span> <span class='number'>1312u16</span>,
+    <span class='ident'>ER_SP_BADRETURN</span> <span class='op'>=</span> <span class='number'>1313u16</span>,
+    <span class='ident'>ER_SP_BADSTATEMENT</span> <span class='op'>=</span> <span class='number'>1314u16</span>,
+    <span class='ident'>ER_UPDATE_LOG_DEPRECATED_IGNORED</span> <span class='op'>=</span> <span class='number'>1315u16</span>,
+    <span class='ident'>ER_UPDATE_LOG_DEPRECATED_TRANSLATED</span> <span class='op'>=</span> <span class='number'>1316u16</span>,
+    <span class='ident'>ER_QUERY_INTERRUPTED</span> <span class='op'>=</span> <span class='number'>1317u16</span>,
+    <span class='ident'>ER_SP_WRONG_NO_OF_ARGS</span> <span class='op'>=</span> <span class='number'>1318u16</span>,
+    <span class='ident'>ER_SP_COND_MISMATCH</span> <span class='op'>=</span> <span class='number'>1319u16</span>,
+    <span class='ident'>ER_SP_NORETURN</span> <span class='op'>=</span> <span class='number'>1320u16</span>,
+    <span class='ident'>ER_SP_NORETURNEND</span> <span class='op'>=</span> <span class='number'>1321u16</span>,
+    <span class='ident'>ER_SP_BAD_CURSOR_QUERY</span> <span class='op'>=</span> <span class='number'>1322u16</span>,
+    <span class='ident'>ER_SP_BAD_CURSOR_SELECT</span> <span class='op'>=</span> <span class='number'>1323u16</span>,
+    <span class='ident'>ER_SP_CURSOR_MISMATCH</span> <span class='op'>=</span> <span class='number'>1324u16</span>,
+    <span class='ident'>ER_SP_CURSOR_ALREADY_OPEN</span> <span class='op'>=</span> <span class='number'>1325u16</span>,
+    <span class='ident'>ER_SP_CURSOR_NOT_OPEN</span> <span class='op'>=</span> <span class='number'>1326u16</span>,
+    <span class='ident'>ER_SP_UNDECLARED_VAR</span> <span class='op'>=</span> <span class='number'>1327u16</span>,
+    <span class='ident'>ER_SP_WRONG_NO_OF_FETCH_ARGS</span> <span class='op'>=</span> <span class='number'>1328u16</span>,
+    <span class='ident'>ER_SP_FETCH_NO_DATA</span> <span class='op'>=</span> <span class='number'>1329u16</span>,
+    <span class='ident'>ER_SP_DUP_PARAM</span> <span class='op'>=</span> <span class='number'>1330u16</span>,
+    <span class='ident'>ER_SP_DUP_VAR</span> <span class='op'>=</span> <span class='number'>1331u16</span>,
+    <span class='ident'>ER_SP_DUP_COND</span> <span class='op'>=</span> <span class='number'>1332u16</span>,
+    <span class='ident'>ER_SP_DUP_CURS</span> <span class='op'>=</span> <span class='number'>1333u16</span>,
+    <span class='ident'>ER_SP_CANT_ALTER</span> <span class='op'>=</span> <span class='number'>1334u16</span>,
+    <span class='ident'>ER_SP_SUBSELECT_NYI</span> <span class='op'>=</span> <span class='number'>1335u16</span>,
+    <span class='ident'>ER_STMT_NOT_ALLOWED_IN_SF_OR_TRG</span> <span class='op'>=</span> <span class='number'>1336u16</span>,
+    <span class='ident'>ER_SP_VARCOND_AFTER_CURSHNDLR</span> <span class='op'>=</span> <span class='number'>1337u16</span>,
+    <span class='ident'>ER_SP_CURSOR_AFTER_HANDLER</span> <span class='op'>=</span> <span class='number'>1338u16</span>,
+    <span class='ident'>ER_SP_CASE_NOT_FOUND</span> <span class='op'>=</span> <span class='number'>1339u16</span>,
+    <span class='ident'>ER_FPARSER_TOO_BIG_FILE</span> <span class='op'>=</span> <span class='number'>1340u16</span>,
+    <span class='ident'>ER_FPARSER_BAD_HEADER</span> <span class='op'>=</span> <span class='number'>1341u16</span>,
+    <span class='ident'>ER_FPARSER_EOF_IN_COMMENT</span> <span class='op'>=</span> <span class='number'>1342u16</span>,
+    <span class='ident'>ER_FPARSER_ERROR_IN_PARAMETER</span> <span class='op'>=</span> <span class='number'>1343u16</span>,
+    <span class='ident'>ER_FPARSER_EOF_IN_UNKNOWN_PARAMETER</span> <span class='op'>=</span> <span class='number'>1344u16</span>,
+    <span class='ident'>ER_VIEW_NO_EXPLAIN</span> <span class='op'>=</span> <span class='number'>1345u16</span>,
+    <span class='ident'>ER_FRM_UNKNOWN_TYPE</span> <span class='op'>=</span> <span class='number'>1346u16</span>,
+    <span class='ident'>ER_WRONG_OBJECT</span> <span class='op'>=</span> <span class='number'>1347u16</span>,
+    <span class='ident'>ER_NONUPDATEABLE_COLUMN</span> <span class='op'>=</span> <span class='number'>1348u16</span>,
+    <span class='ident'>ER_VIEW_SELECT_DERIVED</span> <span class='op'>=</span> <span class='number'>1349u16</span>,
+    <span class='ident'>ER_VIEW_SELECT_CLAUSE</span> <span class='op'>=</span> <span class='number'>1350u16</span>,
+    <span class='ident'>ER_VIEW_SELECT_VARIABLE</span> <span class='op'>=</span> <span class='number'>1351u16</span>,
+    <span class='ident'>ER_VIEW_SELECT_TMPTABLE</span> <span class='op'>=</span> <span class='number'>1352u16</span>,
+    <span class='ident'>ER_VIEW_WRONG_LIST</span> <span class='op'>=</span> <span class='number'>1353u16</span>,
+    <span class='ident'>ER_WARN_VIEW_MERGE</span> <span class='op'>=</span> <span class='number'>1354u16</span>,
+    <span class='ident'>ER_WARN_VIEW_WITHOUT_KEY</span> <span class='op'>=</span> <span class='number'>1355u16</span>,
+    <span class='ident'>ER_VIEW_INVALID</span> <span class='op'>=</span> <span class='number'>1356u16</span>,
+    <span class='ident'>ER_SP_NO_DROP_SP</span> <span class='op'>=</span> <span class='number'>1357u16</span>,
+    <span class='ident'>ER_SP_GOTO_IN_HNDLR</span> <span class='op'>=</span> <span class='number'>1358u16</span>,
+    <span class='ident'>ER_TRG_ALREADY_EXISTS</span> <span class='op'>=</span> <span class='number'>1359u16</span>,
+    <span class='ident'>ER_TRG_DOES_NOT_EXIST</span> <span class='op'>=</span> <span class='number'>1360u16</span>,
+    <span class='ident'>ER_TRG_ON_VIEW_OR_TEMP_TABLE</span> <span class='op'>=</span> <span class='number'>1361u16</span>,
+    <span class='ident'>ER_TRG_CANT_CHANGE_ROW</span> <span class='op'>=</span> <span class='number'>1362u16</span>,
+    <span class='ident'>ER_TRG_NO_SUCH_ROW_IN_TRG</span> <span class='op'>=</span> <span class='number'>1363u16</span>,
+    <span class='ident'>ER_NO_DEFAULT_FOR_FIELD</span> <span class='op'>=</span> <span class='number'>1364u16</span>,
+    <span class='ident'>ER_DIVISION_BY_ZERO</span> <span class='op'>=</span> <span class='number'>1365u16</span>,
+    <span class='ident'>ER_TRUNCATED_WRONG_VALUE_FOR_FIELD</span> <span class='op'>=</span> <span class='number'>1366u16</span>,
+    <span class='ident'>ER_ILLEGAL_VALUE_FOR_TYPE</span> <span class='op'>=</span> <span class='number'>1367u16</span>,
+    <span class='ident'>ER_VIEW_NONUPD_CHECK</span> <span class='op'>=</span> <span class='number'>1368u16</span>,
+    <span class='ident'>ER_VIEW_CHECK_FAILED</span> <span class='op'>=</span> <span class='number'>1369u16</span>,
+    <span class='ident'>ER_PROCACCESS_DENIED_ERROR</span> <span class='op'>=</span> <span class='number'>1370u16</span>,
+    <span class='ident'>ER_RELAY_LOG_FAIL</span> <span class='op'>=</span> <span class='number'>1371u16</span>,
+    <span class='ident'>ER_PASSWD_LENGTH</span> <span class='op'>=</span> <span class='number'>1372u16</span>,
+    <span class='ident'>ER_UNKNOWN_TARGET_BINLOG</span> <span class='op'>=</span> <span class='number'>1373u16</span>,
+    <span class='ident'>ER_IO_ERR_LOG_INDEX_READ</span> <span class='op'>=</span> <span class='number'>1374u16</span>,
+    <span class='ident'>ER_BINLOG_PURGE_PROHIBITED</span> <span class='op'>=</span> <span class='number'>1375u16</span>,
+    <span class='ident'>ER_FSEEK_FAIL</span> <span class='op'>=</span> <span class='number'>1376u16</span>,
+    <span class='ident'>ER_BINLOG_PURGE_FATAL_ERR</span> <span class='op'>=</span> <span class='number'>1377u16</span>,
+    <span class='ident'>ER_LOG_IN_USE</span> <span class='op'>=</span> <span class='number'>1378u16</span>,
+    <span class='ident'>ER_LOG_PURGE_UNKNOWN_ERR</span> <span class='op'>=</span> <span class='number'>1379u16</span>,
+    <span class='ident'>ER_RELAY_LOG_INIT</span> <span class='op'>=</span> <span class='number'>1380u16</span>,
+    <span class='ident'>ER_NO_BINARY_LOGGING</span> <span class='op'>=</span> <span class='number'>1381u16</span>,
+    <span class='ident'>ER_RESERVED_SYNTAX</span> <span class='op'>=</span> <span class='number'>1382u16</span>,
+    <span class='ident'>ER_WSAS_FAILED</span> <span class='op'>=</span> <span class='number'>1383u16</span>,
+    <span class='ident'>ER_DIFF_GROUPS_PROC</span> <span class='op'>=</span> <span class='number'>1384u16</span>,
+    <span class='ident'>ER_NO_GROUP_FOR_PROC</span> <span class='op'>=</span> <span class='number'>1385u16</span>,
+    <span class='ident'>ER_ORDER_WITH_PROC</span> <span class='op'>=</span> <span class='number'>1386u16</span>,
+    <span class='ident'>ER_LOGGING_PROHIBIT_CHANGING_OF</span> <span class='op'>=</span> <span class='number'>1387u16</span>,
+    <span class='ident'>ER_NO_FILE_MAPPING</span> <span class='op'>=</span> <span class='number'>1388u16</span>,
+    <span class='ident'>ER_WRONG_MAGIC</span> <span class='op'>=</span> <span class='number'>1389u16</span>,
+    <span class='ident'>ER_PS_MANY_PARAM</span> <span class='op'>=</span> <span class='number'>1390u16</span>,
+    <span class='ident'>ER_KEY_PART_0</span> <span class='op'>=</span> <span class='number'>1391u16</span>,
+    <span class='ident'>ER_VIEW_CHECKSUM</span> <span class='op'>=</span> <span class='number'>1392u16</span>,
+    <span class='ident'>ER_VIEW_MULTIUPDATE</span> <span class='op'>=</span> <span class='number'>1393u16</span>,
+    <span class='ident'>ER_VIEW_NO_INSERT_FIELD_LIST</span> <span class='op'>=</span> <span class='number'>1394u16</span>,
+    <span class='ident'>ER_VIEW_DELETE_MERGE_VIEW</span> <span class='op'>=</span> <span class='number'>1395u16</span>,
+    <span class='ident'>ER_CANNOT_USER</span> <span class='op'>=</span> <span class='number'>1396u16</span>,
+    <span class='ident'>ER_XAER_NOTA</span> <span class='op'>=</span> <span class='number'>1397u16</span>,
+    <span class='ident'>ER_XAER_INVAL</span> <span class='op'>=</span> <span class='number'>1398u16</span>,
+    <span class='ident'>ER_XAER_RMFAIL</span> <span class='op'>=</span> <span class='number'>1399u16</span>,
+    <span class='ident'>ER_XAER_OUTSIDE</span> <span class='op'>=</span> <span class='number'>1400u16</span>,
+    <span class='ident'>ER_XAER_RMERR</span> <span class='op'>=</span> <span class='number'>1401u16</span>,
+    <span class='ident'>ER_XA_RBROLLBACK</span> <span class='op'>=</span> <span class='number'>1402u16</span>,
+    <span class='ident'>ER_NONEXISTING_PROC_GRANT</span> <span class='op'>=</span> <span class='number'>1403u16</span>,
+    <span class='ident'>ER_PROC_AUTO_GRANT_FAIL</span> <span class='op'>=</span> <span class='number'>1404u16</span>,
+    <span class='ident'>ER_PROC_AUTO_REVOKE_FAIL</span> <span class='op'>=</span> <span class='number'>1405u16</span>,
+    <span class='ident'>ER_DATA_TOO_LONG</span> <span class='op'>=</span> <span class='number'>1406u16</span>,
+    <span class='ident'>ER_SP_BAD_SQLSTATE</span> <span class='op'>=</span> <span class='number'>1407u16</span>,
+    <span class='ident'>ER_STARTUP</span> <span class='op'>=</span> <span class='number'>1408u16</span>,
+    <span class='ident'>ER_LOAD_FROM_FIXED_SIZE_ROWS_TO_VAR</span> <span class='op'>=</span> <span class='number'>1409u16</span>,
+    <span class='ident'>ER_CANT_CREATE_USER_WITH_GRANT</span> <span class='op'>=</span> <span class='number'>1410u16</span>,
+    <span class='ident'>ER_WRONG_VALUE_FOR_TYPE</span> <span class='op'>=</span> <span class='number'>1411u16</span>,
+    <span class='ident'>ER_TABLE_DEF_CHANGED</span> <span class='op'>=</span> <span class='number'>1412u16</span>,
+    <span class='ident'>ER_SP_DUP_HANDLER</span> <span class='op'>=</span> <span class='number'>1413u16</span>,
+    <span class='ident'>ER_SP_NOT_VAR_ARG</span> <span class='op'>=</span> <span class='number'>1414u16</span>,
+    <span class='ident'>ER_SP_NO_RETSET</span> <span class='op'>=</span> <span class='number'>1415u16</span>,
+    <span class='ident'>ER_CANT_CREATE_GEOMETRY_OBJECT</span> <span class='op'>=</span> <span class='number'>1416u16</span>,
+    <span class='ident'>ER_FAILED_ROUTINE_BREAK_BINLOG</span> <span class='op'>=</span> <span class='number'>1417u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_ROUTINE</span> <span class='op'>=</span> <span class='number'>1418u16</span>,
+    <span class='ident'>ER_BINLOG_CREATE_ROUTINE_NEED_SUPER</span> <span class='op'>=</span> <span class='number'>1419u16</span>,
+    <span class='ident'>ER_EXEC_STMT_WITH_OPEN_CURSOR</span> <span class='op'>=</span> <span class='number'>1420u16</span>,
+    <span class='ident'>ER_STMT_HAS_NO_OPEN_CURSOR</span> <span class='op'>=</span> <span class='number'>1421u16</span>,
+    <span class='ident'>ER_COMMIT_NOT_ALLOWED_IN_SF_OR_TRG</span> <span class='op'>=</span> <span class='number'>1422u16</span>,
+    <span class='ident'>ER_NO_DEFAULT_FOR_VIEW_FIELD</span> <span class='op'>=</span> <span class='number'>1423u16</span>,
+    <span class='ident'>ER_SP_NO_RECURSION</span> <span class='op'>=</span> <span class='number'>1424u16</span>,
+    <span class='ident'>ER_TOO_BIG_SCALE</span> <span class='op'>=</span> <span class='number'>1425u16</span>,
+    <span class='ident'>ER_TOO_BIG_PRECISION</span> <span class='op'>=</span> <span class='number'>1426u16</span>,
+    <span class='ident'>ER_M_BIGGER_THAN_D</span> <span class='op'>=</span> <span class='number'>1427u16</span>,
+    <span class='ident'>ER_WRONG_LOCK_OF_SYSTEM_TABLE</span> <span class='op'>=</span> <span class='number'>1428u16</span>,
+    <span class='ident'>ER_CONNECT_TO_FOREIGN_DATA_SOURCE</span> <span class='op'>=</span> <span class='number'>1429u16</span>,
+    <span class='ident'>ER_QUERY_ON_FOREIGN_DATA_SOURCE</span> <span class='op'>=</span> <span class='number'>1430u16</span>,
+    <span class='ident'>ER_FOREIGN_DATA_SOURCE_DOESNT_EXIST</span> <span class='op'>=</span> <span class='number'>1431u16</span>,
+    <span class='ident'>ER_FOREIGN_DATA_STRING_INVALID_CANT_CREATE</span> <span class='op'>=</span> <span class='number'>1432u16</span>,
+    <span class='ident'>ER_FOREIGN_DATA_STRING_INVALID</span> <span class='op'>=</span> <span class='number'>1433u16</span>,
+    <span class='ident'>ER_CANT_CREATE_FEDERATED_TABLE</span> <span class='op'>=</span> <span class='number'>1434u16</span>,
+    <span class='ident'>ER_TRG_IN_WRONG_SCHEMA</span> <span class='op'>=</span> <span class='number'>1435u16</span>,
+    <span class='ident'>ER_STACK_OVERRUN_NEED_MORE</span> <span class='op'>=</span> <span class='number'>1436u16</span>,
+    <span class='ident'>ER_TOO_LONG_BODY</span> <span class='op'>=</span> <span class='number'>1437u16</span>,
+    <span class='ident'>ER_WARN_CANT_DROP_DEFAULT_KEYCACHE</span> <span class='op'>=</span> <span class='number'>1438u16</span>,
+    <span class='ident'>ER_TOO_BIG_DISPLAYWIDTH</span> <span class='op'>=</span> <span class='number'>1439u16</span>,
+    <span class='ident'>ER_XAER_DUPID</span> <span class='op'>=</span> <span class='number'>1440u16</span>,
+    <span class='ident'>ER_DATETIME_FUNCTION_OVERFLOW</span> <span class='op'>=</span> <span class='number'>1441u16</span>,
+    <span class='ident'>ER_CANT_UPDATE_USED_TABLE_IN_SF_OR_TRG</span> <span class='op'>=</span> <span class='number'>1442u16</span>,
+    <span class='ident'>ER_VIEW_PREVENT_UPDATE</span> <span class='op'>=</span> <span class='number'>1443u16</span>,
+    <span class='ident'>ER_PS_NO_RECURSION</span> <span class='op'>=</span> <span class='number'>1444u16</span>,
+    <span class='ident'>ER_SP_CANT_SET_AUTOCOMMIT</span> <span class='op'>=</span> <span class='number'>1445u16</span>,
+    <span class='ident'>ER_MALFORMED_DEFINER</span> <span class='op'>=</span> <span class='number'>1446u16</span>,
+    <span class='ident'>ER_VIEW_FRM_NO_USER</span> <span class='op'>=</span> <span class='number'>1447u16</span>,
+    <span class='ident'>ER_VIEW_OTHER_USER</span> <span class='op'>=</span> <span class='number'>1448u16</span>,
+    <span class='ident'>ER_NO_SUCH_USER</span> <span class='op'>=</span> <span class='number'>1449u16</span>,
+    <span class='ident'>ER_FORBID_SCHEMA_CHANGE</span> <span class='op'>=</span> <span class='number'>1450u16</span>,
+    <span class='ident'>ER_ROW_IS_REFERENCED_2</span> <span class='op'>=</span> <span class='number'>1451u16</span>,
+    <span class='ident'>ER_NO_REFERENCED_ROW_2</span> <span class='op'>=</span> <span class='number'>1452u16</span>,
+    <span class='ident'>ER_SP_BAD_VAR_SHADOW</span> <span class='op'>=</span> <span class='number'>1453u16</span>,
+    <span class='ident'>ER_TRG_NO_DEFINER</span> <span class='op'>=</span> <span class='number'>1454u16</span>,
+    <span class='ident'>ER_OLD_FILE_FORMAT</span> <span class='op'>=</span> <span class='number'>1455u16</span>,
+    <span class='ident'>ER_SP_RECURSION_LIMIT</span> <span class='op'>=</span> <span class='number'>1456u16</span>,
+    <span class='ident'>ER_SP_PROC_TABLE_CORRUPT</span> <span class='op'>=</span> <span class='number'>1457u16</span>,
+    <span class='ident'>ER_SP_WRONG_NAME</span> <span class='op'>=</span> <span class='number'>1458u16</span>,
+    <span class='ident'>ER_TABLE_NEEDS_UPGRADE</span> <span class='op'>=</span> <span class='number'>1459u16</span>,
+    <span class='ident'>ER_SP_NO_AGGREGATE</span> <span class='op'>=</span> <span class='number'>1460u16</span>,
+    <span class='ident'>ER_MAX_PREPARED_STMT_COUNT_REACHED</span> <span class='op'>=</span> <span class='number'>1461u16</span>,
+    <span class='ident'>ER_VIEW_RECURSIVE</span> <span class='op'>=</span> <span class='number'>1462u16</span>,
+    <span class='ident'>ER_NON_GROUPING_FIELD_USED</span> <span class='op'>=</span> <span class='number'>1463u16</span>,
+    <span class='ident'>ER_TABLE_CANT_HANDLE_SPKEYS</span> <span class='op'>=</span> <span class='number'>1464u16</span>,
+    <span class='ident'>ER_NO_TRIGGERS_ON_SYSTEM_SCHEMA</span> <span class='op'>=</span> <span class='number'>1465u16</span>,
+    <span class='ident'>ER_REMOVED_SPACES</span> <span class='op'>=</span> <span class='number'>1466u16</span>,
+    <span class='ident'>ER_AUTOINC_READ_FAILED</span> <span class='op'>=</span> <span class='number'>1467u16</span>,
+    <span class='ident'>ER_USERNAME</span> <span class='op'>=</span> <span class='number'>1468u16</span>,
+    <span class='ident'>ER_HOSTNAME</span> <span class='op'>=</span> <span class='number'>1469u16</span>,
+    <span class='ident'>ER_WRONG_STRING_LENGTH</span> <span class='op'>=</span> <span class='number'>1470u16</span>,
+    <span class='ident'>ER_NON_INSERTABLE_TABLE</span> <span class='op'>=</span> <span class='number'>1471u16</span>,
+    <span class='ident'>ER_ADMIN_WRONG_MRG_TABLE</span> <span class='op'>=</span> <span class='number'>1472u16</span>,
+    <span class='ident'>ER_TOO_HIGH_LEVEL_OF_NESTING_FOR_SELECT</span> <span class='op'>=</span> <span class='number'>1473u16</span>,
+    <span class='ident'>ER_NAME_BECOMES_EMPTY</span> <span class='op'>=</span> <span class='number'>1474u16</span>,
+    <span class='ident'>ER_AMBIGUOUS_FIELD_TERM</span> <span class='op'>=</span> <span class='number'>1475u16</span>,
+    <span class='ident'>ER_FOREIGN_SERVER_EXISTS</span> <span class='op'>=</span> <span class='number'>1476u16</span>,
+    <span class='ident'>ER_FOREIGN_SERVER_DOESNT_EXIST</span> <span class='op'>=</span> <span class='number'>1477u16</span>,
+    <span class='ident'>ER_ILLEGAL_HA_CREATE_OPTION</span> <span class='op'>=</span> <span class='number'>1478u16</span>,
+    <span class='ident'>ER_PARTITION_REQUIRES_VALUES_ERROR</span> <span class='op'>=</span> <span class='number'>1479u16</span>,
+    <span class='ident'>ER_PARTITION_WRONG_VALUES_ERROR</span> <span class='op'>=</span> <span class='number'>1480u16</span>,
+    <span class='ident'>ER_PARTITION_MAXVALUE_ERROR</span> <span class='op'>=</span> <span class='number'>1481u16</span>,
+    <span class='ident'>ER_PARTITION_SUBPARTITION_ERROR</span> <span class='op'>=</span> <span class='number'>1482u16</span>,
+    <span class='ident'>ER_PARTITION_SUBPART_MIX_ERROR</span> <span class='op'>=</span> <span class='number'>1483u16</span>,
+    <span class='ident'>ER_PARTITION_WRONG_NO_PART_ERROR</span> <span class='op'>=</span> <span class='number'>1484u16</span>,
+    <span class='ident'>ER_PARTITION_WRONG_NO_SUBPART_ERROR</span> <span class='op'>=</span> <span class='number'>1485u16</span>,
+    <span class='ident'>ER_CONST_EXPR_IN_PARTITION_FUNC_ERROR</span> <span class='op'>=</span> <span class='number'>1486u16</span>,
+    <span class='ident'>ER_NO_CONST_EXPR_IN_RANGE_OR_LIST_ERROR</span> <span class='op'>=</span> <span class='number'>1487u16</span>,
+    <span class='ident'>ER_FIELD_NOT_FOUND_PART_ERROR</span> <span class='op'>=</span> <span class='number'>1488u16</span>,
+    <span class='ident'>ER_LIST_OF_FIELDS_ONLY_IN_HASH_ERROR</span> <span class='op'>=</span> <span class='number'>1489u16</span>,
+    <span class='ident'>ER_INCONSISTENT_PARTITION_INFO_ERROR</span> <span class='op'>=</span> <span class='number'>1490u16</span>,
+    <span class='ident'>ER_PARTITION_FUNC_NOT_ALLOWED_ERROR</span> <span class='op'>=</span> <span class='number'>1491u16</span>,
+    <span class='ident'>ER_PARTITIONS_MUST_BE_DEFINED_ERROR</span> <span class='op'>=</span> <span class='number'>1492u16</span>,
+    <span class='ident'>ER_RANGE_NOT_INCREASING_ERROR</span> <span class='op'>=</span> <span class='number'>1493u16</span>,
+    <span class='ident'>ER_INCONSISTENT_TYPE_OF_FUNCTIONS_ERROR</span> <span class='op'>=</span> <span class='number'>1494u16</span>,
+    <span class='ident'>ER_MULTIPLE_DEF_CONST_IN_LIST_PART_ERROR</span> <span class='op'>=</span> <span class='number'>1495u16</span>,
+    <span class='ident'>ER_PARTITION_ENTRY_ERROR</span> <span class='op'>=</span> <span class='number'>1496u16</span>,
+    <span class='ident'>ER_MIX_HANDLER_ERROR</span> <span class='op'>=</span> <span class='number'>1497u16</span>,
+    <span class='ident'>ER_PARTITION_NOT_DEFINED_ERROR</span> <span class='op'>=</span> <span class='number'>1498u16</span>,
+    <span class='ident'>ER_TOO_MANY_PARTITIONS_ERROR</span> <span class='op'>=</span> <span class='number'>1499u16</span>,
+    <span class='ident'>ER_SUBPARTITION_ERROR</span> <span class='op'>=</span> <span class='number'>1500u16</span>,
+    <span class='ident'>ER_CANT_CREATE_HANDLER_FILE</span> <span class='op'>=</span> <span class='number'>1501u16</span>,
+    <span class='ident'>ER_BLOB_FIELD_IN_PART_FUNC_ERROR</span> <span class='op'>=</span> <span class='number'>1502u16</span>,
+    <span class='ident'>ER_UNIQUE_KEY_NEED_ALL_FIELDS_IN_PF</span> <span class='op'>=</span> <span class='number'>1503u16</span>,
+    <span class='ident'>ER_NO_PARTS_ERROR</span> <span class='op'>=</span> <span class='number'>1504u16</span>,
+    <span class='ident'>ER_PARTITION_MGMT_ON_NONPARTITIONED</span> <span class='op'>=</span> <span class='number'>1505u16</span>,
+    <span class='ident'>ER_FOREIGN_KEY_ON_PARTITIONED</span> <span class='op'>=</span> <span class='number'>1506u16</span>,
+    <span class='ident'>ER_DROP_PARTITION_NON_EXISTENT</span> <span class='op'>=</span> <span class='number'>1507u16</span>,
+    <span class='ident'>ER_DROP_LAST_PARTITION</span> <span class='op'>=</span> <span class='number'>1508u16</span>,
+    <span class='ident'>ER_COALESCE_ONLY_ON_HASH_PARTITION</span> <span class='op'>=</span> <span class='number'>1509u16</span>,
+    <span class='ident'>ER_REORG_HASH_ONLY_ON_SAME_NO</span> <span class='op'>=</span> <span class='number'>1510u16</span>,
+    <span class='ident'>ER_REORG_NO_PARAM_ERROR</span> <span class='op'>=</span> <span class='number'>1511u16</span>,
+    <span class='ident'>ER_ONLY_ON_RANGE_LIST_PARTITION</span> <span class='op'>=</span> <span class='number'>1512u16</span>,
+    <span class='ident'>ER_ADD_PARTITION_SUBPART_ERROR</span> <span class='op'>=</span> <span class='number'>1513u16</span>,
+    <span class='ident'>ER_ADD_PARTITION_NO_NEW_PARTITION</span> <span class='op'>=</span> <span class='number'>1514u16</span>,
+    <span class='ident'>ER_COALESCE_PARTITION_NO_PARTITION</span> <span class='op'>=</span> <span class='number'>1515u16</span>,
+    <span class='ident'>ER_REORG_PARTITION_NOT_EXIST</span> <span class='op'>=</span> <span class='number'>1516u16</span>,
+    <span class='ident'>ER_SAME_NAME_PARTITION</span> <span class='op'>=</span> <span class='number'>1517u16</span>,
+    <span class='ident'>ER_NO_BINLOG_ERROR</span> <span class='op'>=</span> <span class='number'>1518u16</span>,
+    <span class='ident'>ER_CONSECUTIVE_REORG_PARTITIONS</span> <span class='op'>=</span> <span class='number'>1519u16</span>,
+    <span class='ident'>ER_REORG_OUTSIDE_RANGE</span> <span class='op'>=</span> <span class='number'>1520u16</span>,
+    <span class='ident'>ER_PARTITION_FUNCTION_FAILURE</span> <span class='op'>=</span> <span class='number'>1521u16</span>,
+    <span class='ident'>ER_PART_STATE_ERROR</span> <span class='op'>=</span> <span class='number'>1522u16</span>,
+    <span class='ident'>ER_LIMITED_PART_RANGE</span> <span class='op'>=</span> <span class='number'>1523u16</span>,
+    <span class='ident'>ER_PLUGIN_IS_NOT_LOADED</span> <span class='op'>=</span> <span class='number'>1524u16</span>,
+    <span class='ident'>ER_WRONG_VALUE</span> <span class='op'>=</span> <span class='number'>1525u16</span>,
+    <span class='ident'>ER_NO_PARTITION_FOR_GIVEN_VALUE</span> <span class='op'>=</span> <span class='number'>1526u16</span>,
+    <span class='ident'>ER_FILEGROUP_OPTION_ONLY_ONCE</span> <span class='op'>=</span> <span class='number'>1527u16</span>,
+    <span class='ident'>ER_CREATE_FILEGROUP_FAILED</span> <span class='op'>=</span> <span class='number'>1528u16</span>,
+    <span class='ident'>ER_DROP_FILEGROUP_FAILED</span> <span class='op'>=</span> <span class='number'>1529u16</span>,
+    <span class='ident'>ER_TABLESPACE_AUTO_EXTEND_ERROR</span> <span class='op'>=</span> <span class='number'>1530u16</span>,
+    <span class='ident'>ER_WRONG_SIZE_NUMBER</span> <span class='op'>=</span> <span class='number'>1531u16</span>,
+    <span class='ident'>ER_SIZE_OVERFLOW_ERROR</span> <span class='op'>=</span> <span class='number'>1532u16</span>,
+    <span class='ident'>ER_ALTER_FILEGROUP_FAILED</span> <span class='op'>=</span> <span class='number'>1533u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_LOGGING_FAILED</span> <span class='op'>=</span> <span class='number'>1534u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_WRONG_TABLE_DEF</span> <span class='op'>=</span> <span class='number'>1535u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_RBR_TO_SBR</span> <span class='op'>=</span> <span class='number'>1536u16</span>,
+    <span class='ident'>ER_EVENT_ALREADY_EXISTS</span> <span class='op'>=</span> <span class='number'>1537u16</span>,
+    <span class='ident'>ER_EVENT_STORE_FAILED</span> <span class='op'>=</span> <span class='number'>1538u16</span>,
+    <span class='ident'>ER_EVENT_DOES_NOT_EXIST</span> <span class='op'>=</span> <span class='number'>1539u16</span>,
+    <span class='ident'>ER_EVENT_CANT_ALTER</span> <span class='op'>=</span> <span class='number'>1540u16</span>,
+    <span class='ident'>ER_EVENT_DROP_FAILED</span> <span class='op'>=</span> <span class='number'>1541u16</span>,
+    <span class='ident'>ER_EVENT_INTERVAL_NOT_POSITIVE_OR_TOO_BIG</span> <span class='op'>=</span> <span class='number'>1542u16</span>,
+    <span class='ident'>ER_EVENT_ENDS_BEFORE_STARTS</span> <span class='op'>=</span> <span class='number'>1543u16</span>,
+    <span class='ident'>ER_EVENT_EXEC_TIME_IN_THE_PAST</span> <span class='op'>=</span> <span class='number'>1544u16</span>,
+    <span class='ident'>ER_EVENT_OPEN_TABLE_FAILED</span> <span class='op'>=</span> <span class='number'>1545u16</span>,
+    <span class='ident'>ER_EVENT_NEITHER_M_EXPR_NOR_M_AT</span> <span class='op'>=</span> <span class='number'>1546u16</span>,
+    <span class='ident'>ER_COL_COUNT_DOESNT_MATCH_CORRUPTED</span> <span class='op'>=</span> <span class='number'>1547u16</span>,
+    <span class='ident'>ER_CANNOT_LOAD_FROM_TABLE</span> <span class='op'>=</span> <span class='number'>1548u16</span>,
+    <span class='ident'>ER_EVENT_CANNOT_DELETE</span> <span class='op'>=</span> <span class='number'>1549u16</span>,
+    <span class='ident'>ER_EVENT_COMPILE_ERROR</span> <span class='op'>=</span> <span class='number'>1550u16</span>,
+    <span class='ident'>ER_EVENT_SAME_NAME</span> <span class='op'>=</span> <span class='number'>1551u16</span>,
+    <span class='ident'>ER_EVENT_DATA_TOO_LONG</span> <span class='op'>=</span> <span class='number'>1552u16</span>,
+    <span class='ident'>ER_DROP_INDEX_FK</span> <span class='op'>=</span> <span class='number'>1553u16</span>,
+    <span class='ident'>ER_WARN_DEPRECATED_SYNTAX_WITH_VER</span> <span class='op'>=</span> <span class='number'>1554u16</span>,
+    <span class='ident'>ER_CANT_WRITE_LOCK_LOG_TABLE</span> <span class='op'>=</span> <span class='number'>1555u16</span>,
+    <span class='ident'>ER_CANT_LOCK_LOG_TABLE</span> <span class='op'>=</span> <span class='number'>1556u16</span>,
+    <span class='ident'>ER_FOREIGN_DUPLICATE_KEY</span> <span class='op'>=</span> <span class='number'>1557u16</span>,
+    <span class='ident'>ER_COL_COUNT_DOESNT_MATCH_PLEASE_UPDATE</span> <span class='op'>=</span> <span class='number'>1558u16</span>,
+    <span class='ident'>ER_TEMP_TABLE_PREVENTS_SWITCH_OUT_OF_RBR</span> <span class='op'>=</span> <span class='number'>1559u16</span>,
+    <span class='ident'>ER_STORED_FUNCTION_PREVENTS_SWITCH_BINLOG_FORMAT</span> <span class='op'>=</span> <span class='number'>1560u16</span>,
+    <span class='ident'>ER_NDB_CANT_SWITCH_BINLOG_FORMAT</span> <span class='op'>=</span> <span class='number'>1561u16</span>,
+    <span class='ident'>ER_PARTITION_NO_TEMPORARY</span> <span class='op'>=</span> <span class='number'>1562u16</span>,
+    <span class='ident'>ER_PARTITION_CONST_DOMAIN_ERROR</span> <span class='op'>=</span> <span class='number'>1563u16</span>,
+    <span class='ident'>ER_PARTITION_FUNCTION_IS_NOT_ALLOWED</span> <span class='op'>=</span> <span class='number'>1564u16</span>,
+    <span class='ident'>ER_DDL_LOG_ERROR</span> <span class='op'>=</span> <span class='number'>1565u16</span>,
+    <span class='ident'>ER_NULL_IN_VALUES_LESS_THAN</span> <span class='op'>=</span> <span class='number'>1566u16</span>,
+    <span class='ident'>ER_WRONG_PARTITION_NAME</span> <span class='op'>=</span> <span class='number'>1567u16</span>,
+    <span class='ident'>ER_CANT_CHANGE_TX_ISOLATION</span> <span class='op'>=</span> <span class='number'>1568u16</span>,
+    <span class='ident'>ER_DUP_ENTRY_AUTOINCREMENT_CASE</span> <span class='op'>=</span> <span class='number'>1569u16</span>,
+    <span class='ident'>ER_EVENT_MODIFY_QUEUE_ERROR</span> <span class='op'>=</span> <span class='number'>1570u16</span>,
+    <span class='ident'>ER_EVENT_SET_VAR_ERROR</span> <span class='op'>=</span> <span class='number'>1571u16</span>,
+    <span class='ident'>ER_PARTITION_MERGE_ERROR</span> <span class='op'>=</span> <span class='number'>1572u16</span>,
+    <span class='ident'>ER_CANT_ACTIVATE_LOG</span> <span class='op'>=</span> <span class='number'>1573u16</span>,
+    <span class='ident'>ER_RBR_NOT_AVAILABLE</span> <span class='op'>=</span> <span class='number'>1574u16</span>,
+    <span class='ident'>ER_BASE64_DECODE_ERROR</span> <span class='op'>=</span> <span class='number'>1575u16</span>,
+    <span class='ident'>ER_EVENT_RECURSION_FORBIDDEN</span> <span class='op'>=</span> <span class='number'>1576u16</span>,
+    <span class='ident'>ER_EVENTS_DB_ERROR</span> <span class='op'>=</span> <span class='number'>1577u16</span>,
+    <span class='ident'>ER_ONLY_INTEGERS_ALLOWED</span> <span class='op'>=</span> <span class='number'>1578u16</span>,
+    <span class='ident'>ER_UNSUPORTED_LOG_ENGINE</span> <span class='op'>=</span> <span class='number'>1579u16</span>,
+    <span class='ident'>ER_BAD_LOG_STATEMENT</span> <span class='op'>=</span> <span class='number'>1580u16</span>,
+    <span class='ident'>ER_CANT_RENAME_LOG_TABLE</span> <span class='op'>=</span> <span class='number'>1581u16</span>,
+    <span class='ident'>ER_WRONG_PARAMCOUNT_TO_NATIVE_FCT</span> <span class='op'>=</span> <span class='number'>1582u16</span>,
+    <span class='ident'>ER_WRONG_PARAMETERS_TO_NATIVE_FCT</span> <span class='op'>=</span> <span class='number'>1583u16</span>,
+    <span class='ident'>ER_WRONG_PARAMETERS_TO_STORED_FCT</span> <span class='op'>=</span> <span class='number'>1584u16</span>,
+    <span class='ident'>ER_NATIVE_FCT_NAME_COLLISION</span> <span class='op'>=</span> <span class='number'>1585u16</span>,
+    <span class='ident'>ER_DUP_ENTRY_WITH_KEY_NAME</span> <span class='op'>=</span> <span class='number'>1586u16</span>,
+    <span class='ident'>ER_BINLOG_PURGE_EMFILE</span> <span class='op'>=</span> <span class='number'>1587u16</span>,
+    <span class='ident'>ER_EVENT_CANNOT_CREATE_IN_THE_PAST</span> <span class='op'>=</span> <span class='number'>1588u16</span>,
+    <span class='ident'>ER_EVENT_CANNOT_ALTER_IN_THE_PAST</span> <span class='op'>=</span> <span class='number'>1589u16</span>,
+    <span class='ident'>ER_SLAVE_INCIDENT</span> <span class='op'>=</span> <span class='number'>1590u16</span>,
+    <span class='ident'>ER_NO_PARTITION_FOR_GIVEN_VALUE_SILENT</span> <span class='op'>=</span> <span class='number'>1591u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_STATEMENT</span> <span class='op'>=</span> <span class='number'>1592u16</span>,
+    <span class='ident'>ER_SLAVE_FATAL_ERROR</span> <span class='op'>=</span> <span class='number'>1593u16</span>,
+    <span class='ident'>ER_SLAVE_RELAY_LOG_READ_FAILURE</span> <span class='op'>=</span> <span class='number'>1594u16</span>,
+    <span class='ident'>ER_SLAVE_RELAY_LOG_WRITE_FAILURE</span> <span class='op'>=</span> <span class='number'>1595u16</span>,
+    <span class='ident'>ER_SLAVE_CREATE_EVENT_FAILURE</span> <span class='op'>=</span> <span class='number'>1596u16</span>,
+    <span class='ident'>ER_SLAVE_MASTER_COM_FAILURE</span> <span class='op'>=</span> <span class='number'>1597u16</span>,
+    <span class='ident'>ER_BINLOG_LOGGING_IMPOSSIBLE</span> <span class='op'>=</span> <span class='number'>1598u16</span>,
+    <span class='ident'>ER_VIEW_NO_CREATION_CTX</span> <span class='op'>=</span> <span class='number'>1599u16</span>,
+    <span class='ident'>ER_VIEW_INVALID_CREATION_CTX</span> <span class='op'>=</span> <span class='number'>1600u16</span>,
+    <span class='ident'>ER_SR_INVALID_CREATION_CTX</span> <span class='op'>=</span> <span class='number'>1601u16</span>,
+    <span class='ident'>ER_TRG_CORRUPTED_FILE</span> <span class='op'>=</span> <span class='number'>1602u16</span>,
+    <span class='ident'>ER_TRG_NO_CREATION_CTX</span> <span class='op'>=</span> <span class='number'>1603u16</span>,
+    <span class='ident'>ER_TRG_INVALID_CREATION_CTX</span> <span class='op'>=</span> <span class='number'>1604u16</span>,
+    <span class='ident'>ER_EVENT_INVALID_CREATION_CTX</span> <span class='op'>=</span> <span class='number'>1605u16</span>,
+    <span class='ident'>ER_TRG_CANT_OPEN_TABLE</span> <span class='op'>=</span> <span class='number'>1606u16</span>,
+    <span class='ident'>ER_CANT_CREATE_SROUTINE</span> <span class='op'>=</span> <span class='number'>1607u16</span>,
+    <span class='ident'>ER_SLAVE_AMBIGOUS_EXEC_MODE</span> <span class='op'>=</span> <span class='number'>1608u16</span>,
+    <span class='ident'>ER_NO_FORMAT_DESCRIPTION_EVENT_BEFORE_BINLOG_STATEMENT</span> <span class='op'>=</span> <span class='number'>1609u16</span>,
+    <span class='ident'>ER_SLAVE_CORRUPT_EVENT</span> <span class='op'>=</span> <span class='number'>1610u16</span>,
+    <span class='ident'>ER_LOAD_DATA_INVALID_COLUMN</span> <span class='op'>=</span> <span class='number'>1611u16</span>,
+    <span class='ident'>ER_LOG_PURGE_NO_FILE</span> <span class='op'>=</span> <span class='number'>1612u16</span>,
+    <span class='ident'>ER_XA_RBTIMEOUT</span> <span class='op'>=</span> <span class='number'>1613u16</span>,
+    <span class='ident'>ER_XA_RBDEADLOCK</span> <span class='op'>=</span> <span class='number'>1614u16</span>,
+    <span class='ident'>ER_NEED_REPREPARE</span> <span class='op'>=</span> <span class='number'>1615u16</span>,
+    <span class='ident'>ER_DELAYED_NOT_SUPPORTED</span> <span class='op'>=</span> <span class='number'>1616u16</span>,
+    <span class='ident'>WARN_NO_MASTER_INFO</span> <span class='op'>=</span> <span class='number'>1617u16</span>,
+    <span class='ident'>WARN_OPTION_IGNORED</span> <span class='op'>=</span> <span class='number'>1618u16</span>,
+    <span class='ident'>WARN_PLUGIN_DELETE_BUILTIN</span> <span class='op'>=</span> <span class='number'>1619u16</span>,
+    <span class='ident'>WARN_PLUGIN_BUSY</span> <span class='op'>=</span> <span class='number'>1620u16</span>,
+    <span class='ident'>ER_VARIABLE_IS_READONLY</span> <span class='op'>=</span> <span class='number'>1621u16</span>,
+    <span class='ident'>ER_WARN_ENGINE_TRANSACTION_ROLLBACK</span> <span class='op'>=</span> <span class='number'>1622u16</span>,
+    <span class='ident'>ER_SLAVE_HEARTBEAT_FAILURE</span> <span class='op'>=</span> <span class='number'>1623u16</span>,
+    <span class='ident'>ER_SLAVE_HEARTBEAT_VALUE_OUT_OF_RANGE</span> <span class='op'>=</span> <span class='number'>1624u16</span>,
+    <span class='ident'>ER_NDB_REPLICATION_SCHEMA_ERROR</span> <span class='op'>=</span> <span class='number'>1625u16</span>,
+    <span class='ident'>ER_CONFLICT_FN_PARSE_ERROR</span> <span class='op'>=</span> <span class='number'>1626u16</span>,
+    <span class='ident'>ER_EXCEPTIONS_WRITE_ERROR</span> <span class='op'>=</span> <span class='number'>1627u16</span>,
+    <span class='ident'>ER_TOO_LONG_TABLE_COMMENT</span> <span class='op'>=</span> <span class='number'>1628u16</span>,
+    <span class='ident'>ER_TOO_LONG_FIELD_COMMENT</span> <span class='op'>=</span> <span class='number'>1629u16</span>,
+    <span class='ident'>ER_FUNC_INEXISTENT_NAME_COLLISION</span> <span class='op'>=</span> <span class='number'>1630u16</span>,
+    <span class='ident'>ER_DATABASE_NAME</span> <span class='op'>=</span> <span class='number'>1631u16</span>,
+    <span class='ident'>ER_TABLE_NAME</span> <span class='op'>=</span> <span class='number'>1632u16</span>,
+    <span class='ident'>ER_PARTITION_NAME</span> <span class='op'>=</span> <span class='number'>1633u16</span>,
+    <span class='ident'>ER_SUBPARTITION_NAME</span> <span class='op'>=</span> <span class='number'>1634u16</span>,
+    <span class='ident'>ER_TEMPORARY_NAME</span> <span class='op'>=</span> <span class='number'>1635u16</span>,
+    <span class='ident'>ER_RENAMED_NAME</span> <span class='op'>=</span> <span class='number'>1636u16</span>,
+    <span class='ident'>ER_TOO_MANY_CONCURRENT_TRXS</span> <span class='op'>=</span> <span class='number'>1637u16</span>,
+    <span class='ident'>WARN_NON_ASCII_SEPARATOR_NOT_IMPLEMENTED</span> <span class='op'>=</span> <span class='number'>1638u16</span>,
+    <span class='ident'>ER_DEBUG_SYNC_TIMEOUT</span> <span class='op'>=</span> <span class='number'>1639u16</span>,
+    <span class='ident'>ER_DEBUG_SYNC_HIT_LIMIT</span> <span class='op'>=</span> <span class='number'>1640u16</span>,
+    <span class='ident'>ER_DUP_SIGNAL_SET</span> <span class='op'>=</span> <span class='number'>1641u16</span>,
+    <span class='ident'>ER_SIGNAL_WARN</span> <span class='op'>=</span> <span class='number'>1642u16</span>,
+    <span class='ident'>ER_SIGNAL_NOT_FOUND</span> <span class='op'>=</span> <span class='number'>1643u16</span>,
+    <span class='ident'>ER_SIGNAL_EXCEPTION</span> <span class='op'>=</span> <span class='number'>1644u16</span>,
+    <span class='ident'>ER_RESIGNAL_WITHOUT_ACTIVE_HANDLER</span> <span class='op'>=</span> <span class='number'>1645u16</span>,
+    <span class='ident'>ER_SIGNAL_BAD_CONDITION_TYPE</span> <span class='op'>=</span> <span class='number'>1646u16</span>,
+    <span class='ident'>WARN_COND_ITEM_TRUNCATED</span> <span class='op'>=</span> <span class='number'>1647u16</span>,
+    <span class='ident'>ER_COND_ITEM_TOO_LONG</span> <span class='op'>=</span> <span class='number'>1648u16</span>,
+    <span class='ident'>ER_UNKNOWN_LOCALE</span> <span class='op'>=</span> <span class='number'>1649u16</span>,
+    <span class='ident'>ER_SLAVE_IGNORE_SERVER_IDS</span> <span class='op'>=</span> <span class='number'>1650u16</span>,
+    <span class='ident'>ER_QUERY_CACHE_DISABLED</span> <span class='op'>=</span> <span class='number'>1651u16</span>,
+    <span class='ident'>ER_SAME_NAME_PARTITION_FIELD</span> <span class='op'>=</span> <span class='number'>1652u16</span>,
+    <span class='ident'>ER_PARTITION_COLUMN_LIST_ERROR</span> <span class='op'>=</span> <span class='number'>1653u16</span>,
+    <span class='ident'>ER_WRONG_TYPE_COLUMN_VALUE_ERROR</span> <span class='op'>=</span> <span class='number'>1654u16</span>,
+    <span class='ident'>ER_TOO_MANY_PARTITION_FUNC_FIELDS_ERROR</span> <span class='op'>=</span> <span class='number'>1655u16</span>,
+    <span class='ident'>ER_MAXVALUE_IN_VALUES_IN</span> <span class='op'>=</span> <span class='number'>1656u16</span>,
+    <span class='ident'>ER_TOO_MANY_VALUES_ERROR</span> <span class='op'>=</span> <span class='number'>1657u16</span>,
+    <span class='ident'>ER_ROW_SINGLE_PARTITION_FIELD_ERROR</span> <span class='op'>=</span> <span class='number'>1658u16</span>,
+    <span class='ident'>ER_FIELD_TYPE_NOT_ALLOWED_AS_PARTITION_FIELD</span> <span class='op'>=</span> <span class='number'>1659u16</span>,
+    <span class='ident'>ER_PARTITION_FIELDS_TOO_LONG</span> <span class='op'>=</span> <span class='number'>1660u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_ENGINE_AND_STMT_ENGINE</span> <span class='op'>=</span> <span class='number'>1661u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_MODE_AND_STMT_ENGINE</span> <span class='op'>=</span> <span class='number'>1662u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_AND_STMT_ENGINE</span> <span class='op'>=</span> <span class='number'>1663u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_INJECTION_AND_STMT_ENGINE</span> <span class='op'>=</span> <span class='number'>1664u16</span>,
+    <span class='ident'>ER_BINLOG_STMT_MODE_AND_ROW_ENGINE</span> <span class='op'>=</span> <span class='number'>1665u16</span>,
+    <span class='ident'>ER_BINLOG_ROW_INJECTION_AND_STMT_MODE</span> <span class='op'>=</span> <span class='number'>1666u16</span>,
+    <span class='ident'>ER_BINLOG_MULTIPLE_ENGINES_AND_SELF_LOGGING_ENGINE</span> <span class='op'>=</span> <span class='number'>1667u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_LIMIT</span> <span class='op'>=</span> <span class='number'>1668u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_INSERT_DELAYED</span> <span class='op'>=</span> <span class='number'>1669u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_SYSTEM_TABLE</span> <span class='op'>=</span> <span class='number'>1670u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_AUTOINC_COLUMNS</span> <span class='op'>=</span> <span class='number'>1671u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_UDF</span> <span class='op'>=</span> <span class='number'>1672u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_SYSTEM_VARIABLE</span> <span class='op'>=</span> <span class='number'>1673u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_SYSTEM_FUNCTION</span> <span class='op'>=</span> <span class='number'>1674u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_NONTRANS_AFTER_TRANS</span> <span class='op'>=</span> <span class='number'>1675u16</span>,
+    <span class='ident'>ER_MESSAGE_AND_STATEMENT</span> <span class='op'>=</span> <span class='number'>1676u16</span>,
+    <span class='ident'>ER_SLAVE_CONVERSION_FAILED</span> <span class='op'>=</span> <span class='number'>1677u16</span>,
+    <span class='ident'>ER_SLAVE_CANT_CREATE_CONVERSION</span> <span class='op'>=</span> <span class='number'>1678u16</span>,
+    <span class='ident'>ER_INSIDE_TRANSACTION_PREVENTS_SWITCH_BINLOG_FORMAT</span> <span class='op'>=</span> <span class='number'>1679u16</span>,
+    <span class='ident'>ER_PATH_LENGTH</span> <span class='op'>=</span> <span class='number'>1680u16</span>,
+    <span class='ident'>ER_WARN_DEPRECATED_SYNTAX_NO_REPLACEMENT</span> <span class='op'>=</span> <span class='number'>1681u16</span>,
+    <span class='ident'>ER_WRONG_NATIVE_TABLE_STRUCTURE</span> <span class='op'>=</span> <span class='number'>1682u16</span>,
+    <span class='ident'>ER_WRONG_PERFSCHEMA_USAGE</span> <span class='op'>=</span> <span class='number'>1683u16</span>,
+    <span class='ident'>ER_WARN_I_S_SKIPPED_TABLE</span> <span class='op'>=</span> <span class='number'>1684u16</span>,
+    <span class='ident'>ER_INSIDE_TRANSACTION_PREVENTS_SWITCH_BINLOG_DIRECT</span> <span class='op'>=</span> <span class='number'>1685u16</span>,
+    <span class='ident'>ER_STORED_FUNCTION_PREVENTS_SWITCH_BINLOG_DIRECT</span> <span class='op'>=</span> <span class='number'>1686u16</span>,
+    <span class='ident'>ER_SPATIAL_MUST_HAVE_GEOM_COL</span> <span class='op'>=</span> <span class='number'>1687u16</span>,
+    <span class='ident'>ER_TOO_LONG_INDEX_COMMENT</span> <span class='op'>=</span> <span class='number'>1688u16</span>,
+    <span class='ident'>ER_LOCK_ABORTED</span> <span class='op'>=</span> <span class='number'>1689u16</span>,
+    <span class='ident'>ER_DATA_OUT_OF_RANGE</span> <span class='op'>=</span> <span class='number'>1690u16</span>,
+    <span class='ident'>ER_WRONG_SPVAR_TYPE_IN_LIMIT</span> <span class='op'>=</span> <span class='number'>1691u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_MULTIPLE_ENGINES_AND_SELF_LOGGING_ENGINE</span> <span class='op'>=</span> <span class='number'>1692u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_MIXED_STATEMENT</span> <span class='op'>=</span> <span class='number'>1693u16</span>,
+    <span class='ident'>ER_INSIDE_TRANSACTION_PREVENTS_SWITCH_SQL_LOG_BIN</span> <span class='op'>=</span> <span class='number'>1694u16</span>,
+    <span class='ident'>ER_STORED_FUNCTION_PREVENTS_SWITCH_SQL_LOG_BIN</span> <span class='op'>=</span> <span class='number'>1695u16</span>,
+    <span class='ident'>ER_FAILED_READ_FROM_PAR_FILE</span> <span class='op'>=</span> <span class='number'>1696u16</span>,
+    <span class='ident'>ER_VALUES_IS_NOT_INT_TYPE_ERROR</span> <span class='op'>=</span> <span class='number'>1697u16</span>,
+    <span class='ident'>ER_ACCESS_DENIED_NO_PASSWORD_ERROR</span> <span class='op'>=</span> <span class='number'>1698u16</span>,
+    <span class='ident'>ER_SET_PASSWORD_AUTH_PLUGIN</span> <span class='op'>=</span> <span class='number'>1699u16</span>,
+    <span class='ident'>ER_GRANT_PLUGIN_USER_EXISTS</span> <span class='op'>=</span> <span class='number'>1700u16</span>,
+    <span class='ident'>ER_TRUNCATE_ILLEGAL_FK</span> <span class='op'>=</span> <span class='number'>1701u16</span>,
+    <span class='ident'>ER_PLUGIN_IS_PERMANENT</span> <span class='op'>=</span> <span class='number'>1702u16</span>,
+    <span class='ident'>ER_SLAVE_HEARTBEAT_VALUE_OUT_OF_RANGE_MIN</span> <span class='op'>=</span> <span class='number'>1703u16</span>,
+    <span class='ident'>ER_SLAVE_HEARTBEAT_VALUE_OUT_OF_RANGE_MAX</span> <span class='op'>=</span> <span class='number'>1704u16</span>,
+    <span class='ident'>ER_STMT_CACHE_FULL</span> <span class='op'>=</span> <span class='number'>1705u16</span>,
+    <span class='ident'>ER_MULTI_UPDATE_KEY_CONFLICT</span> <span class='op'>=</span> <span class='number'>1706u16</span>,
+    <span class='ident'>ER_TABLE_NEEDS_REBUILD</span> <span class='op'>=</span> <span class='number'>1707u16</span>,
+    <span class='ident'>WARN_OPTION_BELOW_LIMIT</span> <span class='op'>=</span> <span class='number'>1708u16</span>,
+    <span class='ident'>ER_INDEX_COLUMN_TOO_LONG</span> <span class='op'>=</span> <span class='number'>1709u16</span>,
+    <span class='ident'>ER_ERROR_IN_TRIGGER_BODY</span> <span class='op'>=</span> <span class='number'>1710u16</span>,
+    <span class='ident'>ER_ERROR_IN_UNKNOWN_TRIGGER_BODY</span> <span class='op'>=</span> <span class='number'>1711u16</span>,
+    <span class='ident'>ER_INDEX_CORRUPT</span> <span class='op'>=</span> <span class='number'>1712u16</span>,
+    <span class='ident'>ER_UNDO_RECORD_TOO_BIG</span> <span class='op'>=</span> <span class='number'>1713u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_INSERT_IGNORE_SELECT</span> <span class='op'>=</span> <span class='number'>1714u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_INSERT_SELECT_UPDATE</span> <span class='op'>=</span> <span class='number'>1715u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_REPLACE_SELECT</span> <span class='op'>=</span> <span class='number'>1716u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_CREATE_IGNORE_SELECT</span> <span class='op'>=</span> <span class='number'>1717u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_CREATE_REPLACE_SELECT</span> <span class='op'>=</span> <span class='number'>1718u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_UPDATE_IGNORE</span> <span class='op'>=</span> <span class='number'>1719u16</span>,
+    <span class='ident'>ER_PLUGIN_NO_UNINSTALL</span> <span class='op'>=</span> <span class='number'>1720u16</span>,
+    <span class='ident'>ER_PLUGIN_NO_INSTALL</span> <span class='op'>=</span> <span class='number'>1721u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_WRITE_AUTOINC_SELECT</span> <span class='op'>=</span> <span class='number'>1722u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_CREATE_SELECT_AUTOINC</span> <span class='op'>=</span> <span class='number'>1723u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_INSERT_TWO_KEYS</span> <span class='op'>=</span> <span class='number'>1724u16</span>,
+    <span class='ident'>ER_TABLE_IN_FK_CHECK</span> <span class='op'>=</span> <span class='number'>1725u16</span>,
+    <span class='ident'>ER_UNSUPPORTED_ENGINE</span> <span class='op'>=</span> <span class='number'>1726u16</span>,
+    <span class='ident'>ER_BINLOG_UNSAFE_AUTOINC_NOT_FIRST</span> <span class='op'>=</span> <span class='number'>1727u16</span>,
+}
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "mysql";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script async src="../../search-index.js"></script>
+</body>
+</html>

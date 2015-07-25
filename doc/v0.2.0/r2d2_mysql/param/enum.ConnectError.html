@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ConnectError` enum in crate `r2d2_mysql`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ConnectError">
+
+    <title>r2d2_mysql::param::ConnectError - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'><a href='../index.html'>r2d2_mysql</a>::<wbr><a href='index.html'>param</a></p><script>window.sidebarCurrent = {name: 'ConnectError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>r2d2_mysql</a>::<wbr><a href='index.html'>param</a>::<wbr><a class='enum' href=''>ConnectError</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-225' class='srclink' href='../../src/r2d2_mysql/param.rs.html#43-59' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum ConnectError {
+    InvalidUrl(<a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>),
+    MissingUser,
+    MissingPassword,
+    UnsupportedAuthentication,
+    NoSslSupport,
+    SslError(<a class='struct' href='http://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='http://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt;),
+    IoError(<a class='struct' href='http://doc.rust-lang.org/nightly/std/io/error/struct.Error.html' title='std::io::error::Error'>Error</a>),
+}</pre><div class='docblock'><p>Reasons a new Postgres connection could fail.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.InvalidUrl'><code>InvalidUrl</code></td><td><div class='docblock'><p>The provided URL could not be parsed.</p>
+</div></td></tr><tr><td id='variant.MissingUser'><code>MissingUser</code></td><td><div class='docblock'><p>The URL was missing a user.</p>
+</div></td></tr><tr><td id='variant.MissingPassword'><code>MissingPassword</code></td><td><div class='docblock'><p>A password was required but not provided in the URL.</p>
+</div></td></tr><tr><td id='variant.UnsupportedAuthentication'><code>UnsupportedAuthentication</code></td><td><div class='docblock'><p>The Postgres server requested an authentication method not supported
+by the driver.</p>
+</div></td></tr><tr><td id='variant.NoSslSupport'><code>NoSslSupport</code></td><td><div class='docblock'><p>The Postgres server does not support SSL encryption.</p>
+</div></td></tr><tr><td id='variant.SslError'><code>SslError</code></td><td><div class='docblock'><p>There was an error initializing the SSL session.</p>
+</div></td></tr><tr><td id='variant.IoError'><code>IoError</code></td><td><div class='docblock'><p>There was an error communicating with the server.</p>
+</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../r2d2_mysql/param/enum.ConnectError.html' title='r2d2_mysql::param::ConnectError'>ConnectError</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='http://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "r2d2_mysql";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script async src="../../search-index.js"></script>
+</body>
+</html>
