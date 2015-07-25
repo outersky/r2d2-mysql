@@ -61,7 +61,7 @@ pub enum ConnectError {
 /// Convienent method to connect to database
 ///
 /// ```
-/// let mut conn = connect("mysql://root:12345678@localhost:3306/db_name");
+/// let mut conn = r2d2_mysql::connect("mysql://root:12345678@localhost:3306/test");
 /// ```
 pub fn connect<T>(into_params : T) -> MyResult<MyConn>
     where T:IntoConnectParams+Sized {
