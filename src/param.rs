@@ -1,3 +1,4 @@
+// copied from r2d2-postgresql
 use std::result;
 use std::error;
 use std::io;
