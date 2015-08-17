@@ -8,7 +8,12 @@ Just include another `[dependencies.*]` section into your Cargo.toml:
 ```toml
 [dependencies.r2d2_mysql]
 git = "https://github.com/outersky/r2d2-mysql"
-version="0.2.1"
+version="0.2.2"
+```
+OR
+```toml
+[dependencies]
+r2d2_mysql="0.2.2"
 ```
 #### Example
 

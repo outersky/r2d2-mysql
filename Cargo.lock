@@ -1,6 +1,6 @@
 [root]
 name = "r2d2_mysql"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "mysql 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
