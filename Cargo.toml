@@ -17,5 +17,5 @@ rustc-serialize = "~0.3.0"
 r2d2 = "~0.6.0"
 
 [dependencies.mysql]
-version = "~0.18.0"
+version = "1.2.0"
 default-features = false
