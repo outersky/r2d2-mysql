@@ -1,7 +1,7 @@
 use super::param::ConnectParams;
 use super::param::IntoConnectParams;
-use mysql::error::MyError;
-use mysql::conn::MyConn;
+use mysql::error::Error;
+use mysql::conn::Conn;
 use std::result::Result;
 use std::io;
 use r2d2;
@@ -18,30 +18,30 @@ impl MysqlConnectionManager {
     /// See `postgres::Connection::connect` for a description of the parameter
     /// types.
     pub fn new<T: IntoConnectParams>(params: T)
-            -> Result<MysqlConnectionManager, MyError> {
+            -> Result<MysqlConnectionManager, Error> {
         Ok(MysqlConnectionManager {
-            params: try!(params.into_connect_params().map_err(|_| MyError::MyIoError(io::Error::new(io::ErrorKind::ConnectionRefused, "connect error"))))
+            params: try!(params.into_connect_params().map_err(|_| Error::IoError(io::Error::new(io::ErrorKind::ConnectionRefused, "connect error"))))
         })
     }
 
-    fn do_connect(&self) -> Result<MyConn,MyError> {
-    	self.params.connect().map_err(|_| MyError::MyIoError(io::Error::new(io::ErrorKind::ConnectionRefused, "connect error")))
+    fn do_connect(&self) -> Result<Conn,Error> {
+    	self.params.connect().map_err(|_| Error::IoError(io::Error::new(io::ErrorKind::ConnectionRefused, "connect error")))
     }
 }
 
 impl r2d2::ManageConnection for MysqlConnectionManager {
-    type Connection = MyConn;
-    type Error = MyError;
+    type Connection = Conn;
+    type Error = Error;
 
-    fn connect(&self) -> Result<MyConn,MyError> {
+    fn connect(&self) -> Result<Conn,Error> {
     	self.do_connect()
     }
 
-    fn is_valid(&self, conn: &mut MyConn) -> Result<(), MyError> {
+    fn is_valid(&self, conn: &mut Conn) -> Result<(), Error> {
         conn.query("select 1").map(|_| () )
     }
 
-    fn has_broken(&self, conn: &mut MyConn) -> bool {
+    fn has_broken(&self, conn: &mut Conn) -> bool {
         self.is_valid(conn).is_err()
     }
 }

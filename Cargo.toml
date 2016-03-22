@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_mysql"
-version = "0.2.2"
+version = "2.2.0"
 authors = ["outersky <outersky@gmail.com>"]
 license = "MIT"
 documentation = "http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql"
@@ -13,9 +13,9 @@ name = "r2d2_mysql"
 path = "src/lib.rs"
 
 [dependencies]
-rustc-serialize = "~0.3.0"
-r2d2 = "~0.6.0"
+rustc-serialize = "~0.3.16"
+r2d2 = "~0.6.3"
 
 [dependencies.mysql]
-version = "~0.18.0"
+version = "~2.2.0"
 default-features = false

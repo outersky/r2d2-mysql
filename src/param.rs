@@ -6,9 +6,9 @@ use std::io;
 use super::url;
 use super::url::Url;
 
-use mysql::conn::MyConn;
-use mysql::conn::MyOpts;
-use mysql::error::MyResult;
+use mysql::conn::Conn;
+use mysql::conn::Opts;
+use mysql::error::Result;
 
 /// Authentication information.
 #[derive(Clone,Debug)]
@@ -64,22 +64,22 @@ pub enum ConnectError {
 /// ```
 /// let mut conn = r2d2_mysql::connect("mysql://root:12345678@localhost:3306/test");
 /// ```
-pub fn connect<T>(into_params : T) -> MyResult<MyConn>
+pub fn connect<T>(into_params : T) -> Result<Conn>
     where T:IntoConnectParams+Sized {
     let params = into_params.into_connect_params().unwrap();
     params.connect()
 }
 
 impl ConnectParams {
-    pub fn connect(&self)-> MyResult<MyConn> {
+    pub fn connect(&self)-> Result<Conn> {
         let user = self.user.clone();
-        let opts = MyOpts {
+        let opts = Opts {
             user: user.clone().map(|u| u.user),
             pass: user.clone().unwrap().password,
             db_name: self.database.clone(),
             ..Default::default()
         };
-        MyConn::new(opts)
+        Conn::new(opts)
     }
 }
 
