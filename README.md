@@ -7,7 +7,7 @@ Just include another `[dependencies]` section into your Cargo.toml:
 
 ```toml
 [dependencies]
-r2d2_mysql="0.2.2"
+r2d2_mysql="2.2.0"
 ```
 #### Example
 
