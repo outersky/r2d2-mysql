@@ -1,14 +1,12 @@
-use super::param::ConnectParams;
-use super::param::IntoConnectParams;
 use mysql::error::Error;
 use mysql::conn::Conn;
+use mysql::Opts;
 use std::result::Result;
-use std::io;
 use r2d2;
 
 #[derive(Debug)]
 pub struct MysqlConnectionManager {
-    params: ConnectParams,
+    params: String,
 }
 
 
@@ -17,15 +15,16 @@ impl MysqlConnectionManager {
     ///
     /// See `postgres::Connection::connect` for a description of the parameter
     /// types.
-    pub fn new<T: IntoConnectParams>(params: T)
+    pub fn new(params: &str)
             -> Result<MysqlConnectionManager, Error> {
         Ok(MysqlConnectionManager {
-            params: try!(params.into_connect_params().map_err(|_| Error::IoError(io::Error::new(io::ErrorKind::ConnectionRefused, "connect error"))))
+            params: params.to_owned(),
         })
     }
 
     fn do_connect(&self) -> Result<Conn,Error> {
-    	self.params.connect().map_err(|_| Error::IoError(io::Error::new(io::ErrorKind::ConnectionRefused, "connect error")))
+        let opts = Opts::from_url(self.params.as_str()).expect("mysql url error!");
+        Conn::new(opts)
     }
 }
 
