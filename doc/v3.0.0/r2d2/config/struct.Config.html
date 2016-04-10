@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Config` struct in crate `r2d2`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Config">
+
+    <title>r2d2::config::Config - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>r2d2</a>::<wbr><a href='index.html'>config</a></p><script>window.sidebarCurrent = {name: 'Config', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>r2d2</a>::<wbr><a href='index.html'>config</a>::<wbr><a class='struct' href=''>Config</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-79' class='srclink' href='../../src/r2d2/config.rs.html#140-151' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Config&lt;C, E&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>A struct specifying the runtime configuration of a pool.</p>
+
+<p><code>Config</code> implements <code>Default</code>, which provides a set of reasonable default
+values. It can be constructed using a <code>Builder</code>.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;C, E&gt; <a class='struct' href='../../r2d2/config/struct.Config.html' title='r2d2::config::Config'>Config</a>&lt;C, E&gt;</code></h3><div class='impl-items'><h4 id='method.builder' class='method'><code>fn <a href='#method.builder' class='fnname'>builder</a>() -&gt; <a class='struct' href='../../r2d2/config/struct.Builder.html' title='r2d2::config::Builder'>Builder</a>&lt;C, E&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Builder</code> which can be used to construct a customized
+<code>Config</code>.</p>
+
+<p>All parameters are initialized to their default values.</p>
+</div><h4 id='method.pool_size' class='method'><code>fn <a href='#method.pool_size' class='fnname'>pool_size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>The maximum number of connections managed by the pool.</p>
+
+<p>Defaults to 10.</p>
+</div><h4 id='method.min_idle' class='method'><code>fn <a href='#method.min_idle' class='fnname'>min_idle</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;</code></h4>
+<div class='docblock'><p>If set, the pool will try to maintain at least this many idle
+connections at all times, while respecting the value of <code>pool_size</code>.</p>
+
+<p>Defaults to None (equivalent to the value of <code>pool_size</code>).</p>
+</div><h4 id='method.helper_threads' class='method'><code>fn <a href='#method.helper_threads' class='fnname'>helper_threads</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>The number of threads that the pool will use for asynchronous
+operations such as connection creation and health checks.</p>
+
+<p>Defaults to 3.</p>
+</div><h4 id='method.test_on_check_out' class='method'><code>fn <a href='#method.test_on_check_out' class='fnname'>test_on_check_out</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>If true, the health of a connection will be verified via a call to
+<code>ConnectionManager::is_valid</code> before it is checked out of the pool.</p>
+
+<p>Defaults to true.</p>
+</div><h4 id='method.initialization_fail_fast' class='method'><code>fn <a href='#method.initialization_fail_fast' class='fnname'>initialization_fail_fast</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>If true, <code>Pool::new</code> will synchronously initialize its connections,
+returning an error if they could not be created.</p>
+
+<p>Defaults to true.</p>
+</div><h4 id='method.idle_timeout' class='method'><code>fn <a href='#method.idle_timeout' class='fnname'>idle_timeout</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/time/duration/struct.Duration.html' title='std::time::duration::Duration'>Duration</a>&gt;</code></h4>
+<div class='docblock'><p>If set, connections will be closed after sitting idle for at most 30
+seconds beyond this duration.</p>
+
+<p>Defaults to 10 minutes.</p>
+</div><h4 id='method.max_lifetime' class='method'><code>fn <a href='#method.max_lifetime' class='fnname'>max_lifetime</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/time/duration/struct.Duration.html' title='std::time::duration::Duration'>Duration</a>&gt;</code></h4>
+<div class='docblock'><p>If set, connections will be closed after existing for at most 30 seconds
+beyond this duration. If a connection reaches its maximum lifetime while
+checked out it will be closed when it is returned to the pool.</p>
+
+<p>Defaults to 30 minutes.</p>
+</div><h4 id='method.connection_timeout' class='method'><code>fn <a href='#method.connection_timeout' class='fnname'>connection_timeout</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/std/time/duration/struct.Duration.html' title='std::time::duration::Duration'>Duration</a></code></h4>
+<div class='docblock'><p>Calls to <code>Pool::get</code> will wait this long for a connection to become
+available before returning an error.</p>
+
+<p>Defaults to 30 seconds.</p>
+</div><h4 id='method.connection_timeout_ms' class='method'><code>fn <a href='#method.connection_timeout_ms' class='fnname'>connection_timeout_ms</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'>
+<h1 id='deprecated' class='section-header'><a href='#deprecated'>Deprecated</a></h1>
+<p>Use <code>connection_timeout</code> instead.</p>
+</div><h4 id='method.error_handler' class='method'><code>fn <a href='#method.error_handler' class='fnname'>error_handler</a>(&amp;self) -&gt; &amp;<a class='trait' href='../../r2d2/trait.HandleError.html' title='r2d2::HandleError'>HandleError</a>&lt;E&gt;</code></h4>
+<div class='docblock'><p>The handler for error reported in the pool.</p>
+
+<p>Defaults to <code>r2d2::NopErrorHandler</code>.</p>
+</div><h4 id='method.connection_customizer' class='method'><code>fn <a href='#method.connection_customizer' class='fnname'>connection_customizer</a>(&amp;self) -&gt; &amp;<a class='trait' href='../../r2d2/trait.CustomizeConnection.html' title='r2d2::CustomizeConnection'>CustomizeConnection</a>&lt;C, E&gt;</code></h4>
+<div class='docblock'><p>The connection customizer used by the pool.</p>
+
+<p>Defaults to <code>r2d2::NopConnectionCustomizer</code>.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;C, E&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../r2d2/config/struct.Config.html' title='r2d2::config::Config'>Config</a>&lt;C, E&gt;</code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;C, E&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../../r2d2/config/struct.Config.html' title='r2d2::config::Config'>Config</a>&lt;C, E&gt;</code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../../r2d2/config/struct.Config.html' title='r2d2::config::Config'>Config</a>&lt;C, E&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "r2d2";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

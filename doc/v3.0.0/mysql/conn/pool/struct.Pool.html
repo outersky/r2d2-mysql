@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Pool` struct in crate `mysql`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Pool">
+
+    <title>mysql::conn::pool::Pool - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>mysql</a>::<wbr><a href='../index.html'>conn</a>::<wbr><a href='index.html'>pool</a></p><script>window.sidebarCurrent = {name: 'Pool', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>mysql</a>::<wbr><a href='../index.html'>conn</a>::<wbr><a href='index.html'>pool</a>::<wbr><a class='struct' href=''>Pool</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-5963' class='srclink' href='../../../src/mysql/conn/pool.rs.html#103' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Pool(_);</pre><div class='docblock'><p><code>Pool</code> serves to provide you with a <a href="struct.PooledConn.html"><code>PooledConn</code></a>&#39;s.
+However you can prepare statements directly on <code>Pool</code> without
+invoking <a href="struct.Pool.html#method.get_conn"><code>Pool::get_conn</code></a>.</p>
+
+<p><code>Pool</code> will hold at least <code>min</code> connections and will create as many as <code>max</code>
+connections.</p>
+
+<p>Example of multithreaded <code>Pool</code> usage:</p>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>mysql</span>::<span class='ident'>conn</span>::<span class='ident'>pool</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>default</span>::<span class='ident'>Default</span>;
+<span class='kw'>use</span> <span class='ident'>mysql</span>::<span class='ident'>conn</span>::<span class='ident'>Opts</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>thread</span>;
+
+<span class='kw'>fn</span> <span class='ident'>get_opts</span>() <span class='op'>-&gt;</span> <span class='ident'>Opts</span> {
+      <span class='comment'>// ...</span>
+}
+
+<span class='kw'>let</span> <span class='ident'>opts</span> <span class='op'>=</span> <span class='ident'>get_opts</span>();
+<span class='kw'>let</span> <span class='ident'>pool</span> <span class='op'>=</span> <span class='ident'>pool</span>::<span class='ident'>Pool</span>::<span class='ident'>new</span>(<span class='ident'>opts</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>threads</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+<span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>100</span> {
+    <span class='kw'>let</span> <span class='ident'>pool</span> <span class='op'>=</span> <span class='ident'>pool</span>.<span class='ident'>clone</span>();
+    <span class='ident'>threads</span>.<span class='ident'>push</span>(<span class='ident'>thread</span>::<span class='ident'>spawn</span>(<span class='kw'>move</span> <span class='op'>||</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>pool</span>.<span class='ident'>prep_exec</span>(<span class='string'>&quot;SELECT 1&quot;</span>, ()).<span class='ident'>unwrap</span>();
+        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>result</span>.<span class='ident'>next</span>().<span class='ident'>unwrap</span>().<span class='ident'>unwrap</span>().<span class='ident'>unwrap</span>(), <span class='macro'>vec</span><span class='macro'>!</span>[<span class='number'>1</span>.<span class='ident'>into</span>()]);
+    }));
+}
+<span class='kw'>for</span> <span class='ident'>t</span> <span class='kw'>in</span> <span class='ident'>threads</span>.<span class='ident'>into_iter</span>() {
+    <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>t</span>.<span class='ident'>join</span>().<span class='ident'>is_ok</span>());
+}</pre>
+
+<p>For more info on how to work with mysql connection please look at
+<a href="struct.PooledConn.html"><code>PooledConn</code></a> documentation.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../../mysql/conn/pool/struct.Pool.html' title='mysql::conn::pool::Pool'>Pool</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../../../mysql/struct.Opts.html' title='mysql::Opts'>Opts</a>&gt;&gt;(opts: T) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/pool/struct.Pool.html' title='mysql::conn::pool::Pool'>Pool</a>&gt;</code></h4>
+<div class='docblock'><p>Creates new pool with <code>min = 10</code> and <code>max = 100</code>.</p>
+</div><h4 id='method.new_manual' class='method'><code>fn <a href='#method.new_manual' class='fnname'>new_manual</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../../../mysql/struct.Opts.html' title='mysql::Opts'>Opts</a>&gt;&gt;(min: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, max: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, opts: T) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/pool/struct.Pool.html' title='mysql::conn::pool::Pool'>Pool</a>&gt;</code></h4>
+<div class='docblock'><p>Same as <code>new</code> but you can set <code>min</code> and <code>max</code>.</p>
+</div><h4 id='method.get_conn' class='method'><code>fn <a href='#method.get_conn' class='fnname'>get_conn</a>(&amp;self) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/pool/struct.PooledConn.html' title='mysql::conn::pool::PooledConn'>PooledConn</a>&gt;</code></h4>
+<div class='docblock'><p>Gives you a <a href="struct.PooledConn.html"><code>PooledConn</code></a>.</p>
+
+<p><code>Pool</code> will check that connection is alive via
+<a href="../struct.Conn.html#method.ping"><code>Conn::ping</code></a> and will
+call <a href="../struct.Conn.html#method.reset"><code>Conn::reset</code></a> if
+necessary.</p>
+</div><h4 id='method.try_get_conn' class='method'><code>fn <a href='#method.try_get_conn' class='fnname'>try_get_conn</a>(&amp;self, timeout_ms: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/pool/struct.PooledConn.html' title='mysql::conn::pool::PooledConn'>PooledConn</a>&gt;</code></h4>
+<div class='docblock'><p>Will try to get connection for a duration of <code>timeout_ms</code> milliseconds.</p>
+
+<h1 id='failure' class='section-header'><a href='#failure'>Failure</a></h1>
+<p>This function will return <code>Error::DriverError(DriverError::Timeout)</code> if timeout was
+reached while waiting for new connection to become available.</p>
+</div><h4 id='method.prepare' class='method'><code>fn <a href='#method.prepare' class='fnname'>prepare</a>&lt;'a, T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt; + 'a&gt;(&amp;'a self, query: T) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/struct.Stmt.html' title='mysql::conn::Stmt'>Stmt</a>&lt;'a&gt;&gt;</code></h4>
+<div class='docblock'><p>Will prepare statement.</p>
+
+<p>It will try to find connection which has this statement cached.</p>
+</div><h4 id='method.prep_exec' class='method'><code>fn <a href='#method.prep_exec' class='fnname'>prep_exec</a>&lt;'a, A, T&gt;(&amp;'a self, query: A, params: T) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/struct.QueryResult.html' title='mysql::conn::QueryResult'>QueryResult</a>&lt;'a&gt;&gt; <span class='where'>where A: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;, T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='../../../mysql/value/enum.Params.html' title='mysql::value::Params'>Params</a>&gt;</span></code></h4>
+<div class='docblock'><p>Shortcut for <code>try!(pool.get_conn()).prep_exec(..)</code>.</p>
+
+<p>It will try to find connection which has this statement cached.</p>
+</div><h4 id='method.start_transaction' class='method'><code>fn <a href='#method.start_transaction' class='fnname'>start_transaction</a>(&amp;self, consistent_snapshot: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, isolation_level: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../../mysql/conn/enum.IsolationLevel.html' title='mysql::conn::IsolationLevel'>IsolationLevel</a>&gt;, readonly: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;) -&gt; <a class='type' href='../../../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../../../mysql/conn/struct.Transaction.html' title='mysql::conn::Transaction'>Transaction</a>&gt;</code></h4>
+<div class='docblock'><p>Shortcut for <code>try!(pool.get_conn()).start_transaction(..)</code>.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../../mysql/conn/pool/struct.Pool.html' title='mysql::conn::pool::Pool'>Pool</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../../mysql/conn/pool/struct.Pool.html' title='mysql::conn::pool::Pool'>Pool</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../../mysql/conn/pool/struct.Pool.html' title='mysql::conn::pool::Pool'>Pool</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "mysql";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

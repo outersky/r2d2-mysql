@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Stmt` struct in crate `mysql`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Stmt">
+
+    <title>mysql::Stmt - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>mysql</a></p><script>window.sidebarCurrent = {name: 'Stmt', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>mysql</a>::<wbr><a class='struct' href=''>Stmt</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-6536' class='srclink' href='../src/mysql/conn/mod.rs.html#219-222' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Stmt&lt;'a&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>Mysql
+<a href="http://dev.mysql.com/doc/internals/en/prepared-statements.html">prepared statement</a>.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='struct' href='../mysql/conn/struct.Stmt.html' title='mysql::conn::Stmt'>Stmt</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.params_ref' class='method'><code>fn <a href='#method.params_ref' class='fnname'>params_ref</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../mysql/conn/struct.Column.html' title='mysql::conn::Column'>Column</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a slice of a <a href="struct.Column.html"><code>Column</code>s</a> which represents
+<code>Stmt</code>&#39;s params if any.</p>
+</div><h4 id='method.columns_ref' class='method'><code>fn <a href='#method.columns_ref' class='fnname'>columns_ref</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../mysql/conn/struct.Column.html' title='mysql::conn::Column'>Column</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a slice of a <a href="struct.Column.html"><code>Column</code>s</a> which represents
+<code>Stmt</code>&#39;s columns if any.</p>
+</div><h4 id='method.column_index' class='method'><code>fn <a href='#method.column_index' class='fnname'>column_index</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;(&amp;self, name: T) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt;</code></h4>
+<div class='docblock'><p>Returns index of a <code>Stmt</code>&#39;s column by name.</p>
+</div><h4 id='method.execute' class='method'><code>fn <a href='#method.execute' class='fnname'>execute</a>&lt;'s, T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='../mysql/value/enum.Params.html' title='mysql::value::Params'>Params</a>&gt;&gt;(&amp;'s mut self, params: T) -&gt; <a class='type' href='../mysql/type.Result.html' title='mysql::Result'>MyResult</a>&lt;<a class='struct' href='../mysql/conn/struct.QueryResult.html' title='mysql::conn::QueryResult'>QueryResult</a>&lt;'s&gt;&gt;</code></h4>
+<div class='docblock'><p>Executes prepared statement with parameters passed as a [<code>Into&lt;Params&gt;</code>] implementor.</p>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt0</span> <span class='op'>=</span> <span class='ident'>pool</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT 42&quot;</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt1</span> <span class='op'>=</span> <span class='ident'>pool</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT ?&quot;</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt2</span> <span class='op'>=</span> <span class='ident'>pool</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT ?, ?&quot;</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt13</span> <span class='op'>=</span> <span class='ident'>pool</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?&quot;</span>).<span class='ident'>unwrap</span>();
+
+<span class='comment'>// It is better to pass params as a tuple when executing statements of arity &lt;= 12</span>
+<span class='kw'>for</span> <span class='ident'>row</span> <span class='kw'>in</span> <span class='ident'>stmt0</span>.<span class='ident'>execute</span>(()).<span class='ident'>unwrap</span>() {
+    <span class='kw'>let</span> <span class='ident'>cell</span> <span class='op'>=</span> <span class='ident'>from_row</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>(<span class='ident'>row</span>.<span class='ident'>unwrap</span>());
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>cell</span>, <span class='number'>42u8</span>);
+}
+<span class='comment'>// just do not forget about trailing comma in case of arity = 1</span>
+<span class='kw'>for</span> <span class='ident'>row</span> <span class='kw'>in</span> <span class='ident'>stmt1</span>.<span class='ident'>execute</span>((<span class='number'>42</span>,)).<span class='ident'>unwrap</span>() {
+    <span class='kw'>let</span> <span class='ident'>cell</span> <span class='op'>=</span> <span class='ident'>from_row</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>(<span class='ident'>row</span>.<span class='ident'>unwrap</span>());
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>cell</span>, <span class='number'>42u8</span>);
+}
+
+<span class='comment'>// If you don&#39;t want to lose ownership of param, then you should pass it by reference</span>
+<span class='kw'>let</span> <span class='ident'>word</span> <span class='op'>=</span> <span class='string'>&quot;hello&quot;</span>.<span class='ident'>to_string</span>();
+<span class='kw'>for</span> <span class='ident'>row</span> <span class='kw'>in</span> <span class='ident'>stmt2</span>.<span class='ident'>execute</span>((<span class='kw-2'>&amp;</span><span class='ident'>word</span>, <span class='kw-2'>&amp;</span><span class='ident'>word</span>)).<span class='ident'>unwrap</span>() {
+    <span class='kw'>let</span> (<span class='ident'>cell1</span>, <span class='ident'>cell2</span>) <span class='op'>=</span> <span class='ident'>from_row</span>::<span class='op'>&lt;</span>(<span class='ident'>String</span>, <span class='ident'>String</span>)<span class='op'>&gt;</span>(<span class='ident'>row</span>.<span class='ident'>unwrap</span>());
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>cell1</span>, <span class='string'>&quot;hello&quot;</span>);
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>cell2</span>, <span class='string'>&quot;hello&quot;</span>);
+}
+
+<span class='comment'>// If you want to execute statement of arity &gt; 12, then you can pass params as &amp;[&amp;ToValue].</span>
+<span class='kw'>let</span> <span class='ident'>params</span>: <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='ident'>ToValue</span>] <span class='op'>=</span> <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='number'>2</span>, <span class='kw-2'>&amp;</span><span class='number'>3</span>, <span class='kw-2'>&amp;</span><span class='number'>4</span>, <span class='kw-2'>&amp;</span><span class='number'>5</span>, <span class='kw-2'>&amp;</span><span class='number'>6</span>, <span class='kw-2'>&amp;</span><span class='number'>7</span>, <span class='kw-2'>&amp;</span><span class='number'>8</span>, <span class='kw-2'>&amp;</span><span class='number'>9</span>, <span class='kw-2'>&amp;</span><span class='number'>10</span>, <span class='kw-2'>&amp;</span><span class='number'>11</span>, <span class='kw-2'>&amp;</span><span class='number'>12</span>, <span class='kw-2'>&amp;</span><span class='number'>13</span>];
+<span class='kw'>for</span> <span class='ident'>row</span> <span class='kw'>in</span> <span class='ident'>stmt13</span>.<span class='ident'>execute</span>(<span class='ident'>params</span>).<span class='ident'>unwrap</span>() {
+    <span class='kw'>let</span> <span class='ident'>row</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>row</span>.<span class='ident'>unwrap</span>().<span class='ident'>unwrap</span>().<span class='ident'>into_iter</span>().<span class='ident'>map</span>(<span class='ident'>from_value</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>).<span class='ident'>collect</span>();
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>row</span>, <span class='macro'>vec</span><span class='macro'>!</span>[<span class='number'>1</span>, <span class='number'>2</span>, <span class='number'>3</span>, <span class='number'>4</span>, <span class='number'>5</span>, <span class='number'>6</span>, <span class='number'>7</span>, <span class='number'>8</span>, <span class='number'>9</span>, <span class='number'>10</span>, <span class='number'>11</span>, <span class='number'>12</span>, <span class='number'>13</span>]);
+}
+<span class='comment'>// but be aware of implicit copying, so if you have huge params and do not care</span>
+<span class='comment'>// about ownership, then better to use plain Vec&lt;Value&gt;.</span>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>params</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Value</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>13</span>);
+<span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>1</span>..<span class='number'>14</span> {
+    <span class='ident'>params</span>.<span class='ident'>push</span>(<span class='ident'>repeat</span>(<span class='string'>&#39;A&#39;</span>).<span class='ident'>take</span>(<span class='ident'>i</span> <span class='op'>*</span> <span class='number'>1000</span>).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>().<span class='ident'>into</span>());
+}
+<span class='kw'>for</span> <span class='ident'>row</span> <span class='kw'>in</span> <span class='ident'>stmt13</span>.<span class='ident'>execute</span>(<span class='ident'>params</span>).<span class='ident'>unwrap</span>() {
+    <span class='kw'>let</span> <span class='ident'>row</span> <span class='op'>=</span> <span class='ident'>row</span>.<span class='ident'>unwrap</span>();
+    <span class='kw'>let</span> <span class='ident'>row</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>row</span>.<span class='ident'>unwrap</span>().<span class='ident'>into_iter</span>().<span class='ident'>map</span>(<span class='ident'>from_value</span>::<span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>).<span class='ident'>collect</span>();
+    <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>1</span>..<span class='number'>14</span> {
+        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>row</span>[<span class='ident'>i</span><span class='op'>-</span><span class='number'>1</span>], <span class='ident'>repeat</span>(<span class='string'>&#39;A&#39;</span>).<span class='ident'>take</span>(<span class='ident'>i</span> <span class='op'>*</span> <span class='number'>1000</span>).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>());
+    }
+}</pre>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../mysql/conn/struct.Stmt.html' title='mysql::conn::Stmt'>Stmt</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "mysql";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

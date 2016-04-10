@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `mysql` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, mysql">
+
+    <title>mysql - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'mysql', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>mysql</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/mysql/lib.rs.html#1-208' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'>
+<h3 id='rust-mysql-simple' class='section-header'><a href='#rust-mysql-simple'>rust-mysql-simple</a></h3>
+<p>Mysql client library implemented in rust nightly.</p>
+
+<h4 id='install' class='section-header'><a href='#install'>Install</a></h4>
+<p>Please use <em>mysql</em> crate:</p>
+
+<pre><code class="language-toml">[dependencies]
+mysql = &quot;*&quot;
+</code></pre>
+
+<p>rust-mysql-simple offers support of SSL via <code>ssl</code> cargo feature which is enabled by default.
+If you have no plans to use SSL, then you should disable that feature to not to depend on
+rust-openssl:</p>
+
+<pre><code class="language-toml">[dependencies.mysql]
+mysql = &quot;*&quot;
+default-features = false
+features = [&quot;socket&quot;]
+</code></pre>
+
+<h4 id='windows-support-since-0180' class='section-header'><a href='#windows-support-since-0180'>Windows support (since 0.18.0)</a></h4>
+<p>Currently rust-mysql-simple has no support for SSL on Windows.</p>
+
+<pre><code class="language-toml">[dependencies.mysql]
+mysql = &quot;*&quot;
+default-features = false
+features = [&quot;pipe&quot;]
+</code></pre>
+
+<h4 id='example' class='section-header'><a href='#example'>Example</a></h4><pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>mysql</span> <span class='kw'>as</span> <span class='ident'>my</span>;
+
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
+<span class='kw'>struct</span> <span class='ident'>Payment</span> {
+    <span class='ident'>customer_id</span>: <span class='ident'>i32</span>,
+    <span class='ident'>amount</span>: <span class='ident'>i32</span>,
+    <span class='ident'>account_name</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>,
+}
+
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+    <span class='kw'>let</span> <span class='ident'>pool</span> <span class='op'>=</span> <span class='ident'>my</span>::<span class='ident'>Pool</span>::<span class='ident'>new</span>(<span class='string'>&quot;mysql://root:password@localhost:3307&quot;</span>).<span class='ident'>unwrap</span>();
+
+    <span class='comment'>// Let&#39;s create payment table.</span>
+    <span class='comment'>// It is temporary so we do not need `tmp` database to exist.</span>
+    <span class='comment'>// Unwap just to make sure no error happened.</span>
+    <span class='ident'>pool</span>.<span class='ident'>prep_exec</span>(<span class='string'>r&quot;CREATE TEMPORARY TABLE tmp.payment (
+                         customer_id int not null,
+                         amount int not null,
+                         account_name text
+                     )&quot;</span>, ()).<span class='ident'>unwrap</span>();
+
+    <span class='kw'>let</span> <span class='ident'>payments</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>[
+        <span class='ident'>Payment</span> { <span class='ident'>customer_id</span>: <span class='number'>1</span>, <span class='ident'>amount</span>: <span class='number'>2</span>, <span class='ident'>account_name</span>: <span class='prelude-val'>None</span> },
+        <span class='ident'>Payment</span> { <span class='ident'>customer_id</span>: <span class='number'>3</span>, <span class='ident'>amount</span>: <span class='number'>4</span>, <span class='ident'>account_name</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;foo&quot;</span>.<span class='ident'>into</span>()) },
+        <span class='ident'>Payment</span> { <span class='ident'>customer_id</span>: <span class='number'>5</span>, <span class='ident'>amount</span>: <span class='number'>6</span>, <span class='ident'>account_name</span>: <span class='prelude-val'>None</span> },
+        <span class='ident'>Payment</span> { <span class='ident'>customer_id</span>: <span class='number'>7</span>, <span class='ident'>amount</span>: <span class='number'>8</span>, <span class='ident'>account_name</span>: <span class='prelude-val'>None</span> },
+        <span class='ident'>Payment</span> { <span class='ident'>customer_id</span>: <span class='number'>9</span>, <span class='ident'>amount</span>: <span class='number'>10</span>, <span class='ident'>account_name</span>: <span class='prelude-val'>Some</span>(<span class='string'>&quot;bar&quot;</span>.<span class='ident'>into</span>()) },
+    ];
+
+    <span class='comment'>// Let&#39;s insert payments to the database</span>
+    <span class='comment'>// We will use into_iter() because we do not need to map Stmt to anything else.</span>
+    <span class='comment'>// Also we assume that no error happened in `prepare`.</span>
+    <span class='kw'>for</span> <span class='kw-2'>mut</span> <span class='ident'>stmt</span> <span class='kw'>in</span> <span class='ident'>pool</span>.<span class='ident'>prepare</span>(<span class='string'>r&quot;INSERT INTO tmp.payment
+                                       (customer_id, amount, account_name)
+                                   VALUES
+                                       (?, ?, ?)&quot;</span>).<span class='ident'>into_iter</span>() {
+        <span class='kw'>for</span> <span class='ident'>p</span> <span class='kw'>in</span> <span class='ident'>payments</span>.<span class='ident'>iter</span>() {
+            <span class='comment'>// `execute` takes ownership of `params` so we pass account name by reference.</span>
+            <span class='comment'>// Unwrap each result just to make sure no errors happended.</span>
+            <span class='ident'>stmt</span>.<span class='ident'>execute</span>((<span class='ident'>p</span>.<span class='ident'>customer_id</span>, <span class='ident'>p</span>.<span class='ident'>amount</span>, <span class='kw-2'>&amp;</span><span class='ident'>p</span>.<span class='ident'>account_name</span>)).<span class='ident'>unwrap</span>();
+        }
+    }
+
+    <span class='comment'>// Let&#39;s select payments from database</span>
+    <span class='kw'>let</span> <span class='ident'>selected_payments</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Payment</span><span class='op'>&gt;</span> <span class='op'>=</span>
+    <span class='ident'>pool</span>.<span class='ident'>prep_exec</span>(<span class='string'>&quot;SELECT customer_id, amount, account_name from tmp.payment&quot;</span>, ())
+    .<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>result</span><span class='op'>|</span> { <span class='comment'>// In this closure we sill map `QueryResult` to `Vec&lt;Payment&gt;`</span>
+        <span class='comment'>// `QueryResult` is iterator over `MyResult&lt;row, err&gt;` so first call to `map`</span>
+        <span class='comment'>// will map each `MyResult` to contained `row` (no proper error handling)</span>
+        <span class='comment'>// and second call to `map` will map each `row` to `Payment`</span>
+        <span class='ident'>result</span>.<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>x</span><span class='op'>|</span> <span class='ident'>x</span>.<span class='ident'>unwrap</span>()).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>row</span><span class='op'>|</span> {
+            <span class='kw'>let</span> (<span class='ident'>customer_id</span>, <span class='ident'>amount</span>, <span class='ident'>account_name</span>) <span class='op'>=</span> <span class='ident'>my</span>::<span class='ident'>from_row</span>(<span class='ident'>row</span>);
+            <span class='ident'>Payment</span> {
+                <span class='ident'>customer_id</span>: <span class='ident'>customer_id</span>,
+                <span class='ident'>amount</span>: <span class='ident'>amount</span>,
+                <span class='ident'>account_name</span>: <span class='ident'>account_name</span>,
+            }
+        }).<span class='ident'>collect</span>() <span class='comment'>// Collect payments so now `QueryResult` is mapped to `Vec&lt;Payment&gt;`</span>
+    }).<span class='ident'>unwrap</span>(); <span class='comment'>// Unwrap `Vec&lt;Payment&gt;`</span>
+
+    <span class='comment'>// Now make sure that `payments` equals to `selected_payments`.</span>
+    <span class='comment'>// Mysql gives no guaranties on order of returned rows without `ORDER BY`</span>
+    <span class='comment'>// so assume we are lukky.</span>
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>payments</span>, <span class='ident'>selected_payments</span>);
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Yay!&quot;</span>);
+}</pre>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='conn/index.html'
+                               title='mysql::conn'>conn</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='consts/index.html'
+                               title='mysql::consts'>consts</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='error/index.html'
+                               title='mysql::error'>error</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='value/index.html'
+                               title='mysql::value'>value</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Column.html'
+                               title='mysql::Column'>Column</a></td>
+                        <td class='docblock short'>
+                             <p>Mysql
+<a href="http://dev.mysql.com/doc/internals/en/com-query-response.html#packet-Protocol::ColumnDefinition"><code>Column</code></a>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Conn.html'
+                               title='mysql::Conn'>Conn</a></td>
+                        <td class='docblock short'>
+                             <p>Mysql connection.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.MySqlError.html'
+                               title='mysql::MySqlError'>MySqlError</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Opts.html'
+                               title='mysql::Opts'>Opts</a></td>
+                        <td class='docblock short'>
+                             <p>Mysql connection options.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.OptsBuilder.html'
+                               title='mysql::OptsBuilder'>OptsBuilder</a></td>
+                        <td class='docblock short'>
+                             <p>Provides a way to build <a href="struct.Opts.html"><code>Opts</code></a>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Pool.html'
+                               title='mysql::Pool'>Pool</a></td>
+                        <td class='docblock short'>
+                             <p><code>Pool</code> serves to provide you with a <a href="struct.PooledConn.html"><code>PooledConn</code></a>&#39;s.
+However you can prepare statements directly on <code>Pool</code> without
+invoking <a href="struct.Pool.html#method.get_conn"><code>Pool::get_conn</code></a>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.PooledConn.html'
+                               title='mysql::PooledConn'>PooledConn</a></td>
+                        <td class='docblock short'>
+                             <p>Pooled mysql connection which will return to the pool on <code>drop</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.QueryResult.html'
+                               title='mysql::QueryResult'>QueryResult</a></td>
+                        <td class='docblock short'>
+                             <p>Mysql result set for text and binary protocols.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Row.html'
+                               title='mysql::Row'>Row</a></td>
+                        <td class='docblock short'>
+                             <p>Mysql row representation.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Stmt.html'
+                               title='mysql::Stmt'>Stmt</a></td>
+                        <td class='docblock short'>
+                             <p>Mysql
+<a href="http://dev.mysql.com/doc/internals/en/prepared-statements.html">prepared statement</a>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Transaction.html'
+                               title='mysql::Transaction'>Transaction</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.DriverError.html'
+                               title='mysql::DriverError'>DriverError</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Error.html'
+                               title='mysql::Error'>Error</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.IsolationLevel.html'
+                               title='mysql::IsolationLevel'>IsolationLevel</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Params.html'
+                               title='mysql::Params'>Params</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.ServerError.html'
+                               title='mysql::ServerError'>ServerError</a></td>
+                        <td class='docblock short'>
+                             <p>Server error codes (u16)</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.UrlError.html'
+                               title='mysql::UrlError'>UrlError</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Value.html'
+                               title='mysql::Value'>Value</a></td>
+                        <td class='docblock short'>
+                             <p><code>Value</code> enumerates possible values in mysql cells. Also <code>Value</code> used to fill
+prepared statements.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ConvIr.html'
+                               title='mysql::ConvIr'>ConvIr</a></td>
+                        <td class='docblock short'>
+                             <p>Basic operations on <code>FromValue</code> conversion intermediate result.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.FromRow.html'
+                               title='mysql::FromRow'>FromRow</a></td>
+                        <td class='docblock short'>
+                             <p>Trait to convert <code>Row</code> into tuple of <code>FromValue</code> implementors up to arity 12.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.FromValue.html'
+                               title='mysql::FromValue'>FromValue</a></td>
+                        <td class='docblock short'>
+                             <p>Implement this trait to convert value to something.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ToValue.html'
+                               title='mysql::ToValue'>ToValue</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.from_row.html'
+                               title='mysql::from_row'>from_row</a></td>
+                        <td class='docblock short'>
+                             <p>Will <em>panic</em> if could not convert <code>row</code> to <code>T</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.from_row_opt.html'
+                               title='mysql::from_row_opt'>from_row_opt</a></td>
+                        <td class='docblock short'>
+                             <p>Will return <code>Err(row)</code> if could not convert <code>row</code> to <code>T</code></p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.from_value.html'
+                               title='mysql::from_value'>from_value</a></td>
+                        <td class='docblock short'>
+                             <p>Will panic if could not convert <code>v</code> to <code>T</code></p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.from_value_opt.html'
+                               title='mysql::from_value_opt'>from_value_opt</a></td>
+                        <td class='docblock short'>
+                             <p>Will return <code>Err(v)</code> if could not convert <code>v</code> to <code>T</code></p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Result.html'
+                               title='mysql::Result'>Result</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "mysql";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

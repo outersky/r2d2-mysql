@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Pool","`Pool` serves to provide you with a `PooledConn`'s. However you can prepare statements directly on `Pool` without invoking `Pool::get_conn`."],["PooledConn","Pooled mysql connection which will return to the pool on `drop`."]]});

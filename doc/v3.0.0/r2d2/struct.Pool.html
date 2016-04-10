@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Pool` struct in crate `r2d2`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Pool">
+
+    <title>r2d2::Pool - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>r2d2</a></p><script>window.sidebarCurrent = {name: 'Pool', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>r2d2</a>::<wbr><a class='struct' href=''>Pool</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-416' class='srclink' href='../src/r2d2/lib.rs.html#260' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Pool&lt;M: <a class='trait' href='../r2d2/trait.ManageConnection.html' title='r2d2::ManageConnection'>ManageConnection</a>&gt;(_);</pre><div class='docblock'><p>A generic connection pool.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;M&gt; <a class='struct' href='../r2d2/struct.Pool.html' title='r2d2::Pool'>Pool</a>&lt;M&gt; <span class='where'>where M: <a class='trait' href='../r2d2/trait.ManageConnection.html' title='r2d2::ManageConnection'>ManageConnection</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(config: <a class='struct' href='../r2d2/config/struct.Config.html' title='r2d2::config::Config'>Config</a>&lt;M::Connection, M::Error&gt;, manager: M) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../r2d2/struct.Pool.html' title='r2d2::Pool'>Pool</a>&lt;M&gt;, <a class='struct' href='../r2d2/struct.InitializationError.html' title='r2d2::InitializationError'>InitializationError</a>&gt;</code></h4>
+<div class='docblock'><p>Creates a new connection pool.</p>
+
+<p>Returns an <code>Err</code> value if <code>initialization_fail_fast</code> is set to true in
+the configuration and the pool is unable to open all of its
+connections.</p>
+</div><h4 id='method.get' class='method'><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../r2d2/struct.PooledConnection.html' title='r2d2::PooledConnection'>PooledConnection</a>&lt;M&gt;, <a class='struct' href='../r2d2/struct.GetTimeout.html' title='r2d2::GetTimeout'>GetTimeout</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieves a connection from the pool.</p>
+
+<p>Waits for at most <code>Config::connection_timeout</code> before returning an
+error.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;M&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../r2d2/struct.Pool.html' title='r2d2::Pool'>Pool</a>&lt;M&gt; <span class='where'>where M: <a class='trait' href='../r2d2/trait.ManageConnection.html' title='r2d2::ManageConnection'>ManageConnection</a></span></code></h3><div class='docblock'><p>Returns a new <code>Pool</code> referencing the same state as <code>self</code>.</p>
+</div><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../r2d2/struct.Pool.html' title='r2d2::Pool'>Pool</a>&lt;M&gt;</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl&lt;M&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../r2d2/struct.Pool.html' title='r2d2::Pool'>Pool</a>&lt;M&gt; <span class='where'>where M: <a class='trait' href='../r2d2/trait.ManageConnection.html' title='r2d2::ManageConnection'>ManageConnection</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a></span></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "r2d2";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

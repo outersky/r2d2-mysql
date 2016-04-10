@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `OptsBuilder` struct in crate `mysql`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, OptsBuilder">
+
+    <title>mysql::OptsBuilder - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>mysql</a></p><script>window.sidebarCurrent = {name: 'OptsBuilder', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>mysql</a>::<wbr><a class='struct' href=''>OptsBuilder</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-6254' class='srclink' href='../src/mysql/conn/opts.rs.html#322-324' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct OptsBuilder {
+    // some fields omitted
+}</pre><div class='docblock'><p>Provides a way to build <a href="struct.Opts.html"><code>Opts</code></a>.</p>
+<pre class='rust rust-example-rendered'>
+<span class='comment'>// You can create new default builder</span>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>builder</span> <span class='op'>=</span> <span class='ident'>OptsBuilder</span>::<span class='ident'>new</span>();
+<span class='ident'>builder</span>.<span class='ident'>ip_or_hostname</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;foo&quot;</span>))
+       .<span class='ident'>db_name</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;bar&quot;</span>))
+       .<span class='ident'>ssl_opts</span>(<span class='prelude-val'>Some</span>((<span class='string'>&quot;/foo/cert.pem&quot;</span>, <span class='prelude-val'>None</span>::<span class='op'>&lt;</span>(<span class='ident'>String</span>, <span class='ident'>String</span>)<span class='op'>&gt;</span>)));
+
+<span class='comment'>// Or use existing T: Into&lt;Opts&gt;</span>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>builder</span> <span class='op'>=</span> <span class='ident'>OptsBuilder</span>::<span class='ident'>from_opts</span>(<span class='ident'>existing_opts</span>);
+<span class='ident'>builder</span>.<span class='ident'>ip_or_hostname</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;foo&quot;</span>))
+       .<span class='ident'>db_name</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;bar&quot;</span>));</pre>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../mysql/struct.OptsBuilder.html' title='mysql::OptsBuilder'>OptsBuilder</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; Self</code></h4>
+<h4 id='method.from_opts' class='method'><code>fn <a href='#method.from_opts' class='fnname'>from_opts</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../mysql/struct.Opts.html' title='mysql::Opts'>Opts</a>&gt;&gt;(opts: T) -&gt; Self</code></h4>
+<h4 id='method.ip_or_hostname' class='method'><code>fn <a href='#method.ip_or_hostname' class='fnname'>ip_or_hostname</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, ip_or_hostname: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Address of mysql server (defaults to <code>127.0.0.1</code>). Hostnames should also work.</p>
+</div><h4 id='method.tcp_port' class='method'><code>fn <a href='#method.tcp_port' class='fnname'>tcp_port</a>(&amp;mut self, tcp_port: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>TCP port of mysql server (defaults to <code>3306</code>).</p>
+</div><h4 id='method.user' class='method'><code>fn <a href='#method.user' class='fnname'>user</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, user: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>User (defaults to <code>None</code>).</p>
+</div><h4 id='method.pass' class='method'><code>fn <a href='#method.pass' class='fnname'>pass</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, pass: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Password (defaults to <code>None</code>).</p>
+</div><h4 id='method.db_name' class='method'><code>fn <a href='#method.db_name' class='fnname'>db_name</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, db_name: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Database name (defaults to <code>None</code>).</p>
+</div><h4 id='method.read_timeout' class='method'><code>fn <a href='#method.read_timeout' class='fnname'>read_timeout</a>(&amp;mut self, read_timeout: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/time/duration/struct.Duration.html' title='std::time::duration::Duration'>Duration</a>&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>The timeout for each attempt to read from the server (defaults to <code>None</code>).</p>
+
+<p>Note that named pipe connection will ignore duration&#39;s <code>nanos</code>, and also note that
+it is an error to pass the zero <code>Duration</code> to this method.</p>
+</div><h4 id='method.write_timeout' class='method'><code>fn <a href='#method.write_timeout' class='fnname'>write_timeout</a>(&amp;mut self, write_timeout: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/time/duration/struct.Duration.html' title='std::time::duration::Duration'>Duration</a>&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>The timeout for each attempt to write to the server (defaults to <code>None</code>).</p>
+
+<p>Note that named pipe connection will ignore duration&#39;s <code>nanos</code>, and also note that
+it is likely error to pass the zero <code>Duration</code> to this method.</p>
+</div><h4 id='method.init' class='method'><code>fn <a href='#method.init' class='fnname'>init</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, init: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;T&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Commands to execute on each new database connection.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../mysql/struct.OptsBuilder.html' title='mysql::OptsBuilder'>OptsBuilder</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../mysql/struct.OptsBuilder.html' title='mysql::OptsBuilder'>OptsBuilder</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "mysql";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
