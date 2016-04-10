@@ -7,7 +7,7 @@
 //! ```toml
 //! [dependencies.r2d2_mysql]
 //! git = "https://github.com/outersky/r2d2-mysql"
-//! version="0.2.0"
+//! version="*"
 //! ```
 //! #### Sample
 //!
