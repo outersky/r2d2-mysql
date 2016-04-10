@@ -1,13 +1,13 @@
 # r2d2-mysql
 [`rust-mysql-simple`](https://github.com/blackbeam/rust-mysql-simple) support library for the [`r2d2`](https://github.com/sfackler/r2d2) connection pool.
-Documentation is available at [http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql](http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql)
+Documentation is available at [http://outersky.github.io/r2d2-mysql/doc/v3.0.0/r2d2_mysql](http://outersky.github.io/r2d2-mysql/doc/v3.0.0/r2d2_mysql)
 
 #### Install
 Just include another `[dependencies]` section into your Cargo.toml:
 
 ```toml
 [dependencies]
-r2d2_mysql="2.2.0"
+r2d2_mysql="*"
 ```
 #### Example
 
