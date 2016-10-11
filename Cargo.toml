@@ -13,9 +13,9 @@ name = "r2d2_mysql"
 path = "src/lib.rs"
 
 [dependencies]
-rustc-serialize = "~0.3.16"
+rustc-serialize = "~0.3.19"
 r2d2 = "0.7.0"
 
 [dependencies.mysql]
-version = "3.0"
+mysql = "7.1.2"
 default-features = false
