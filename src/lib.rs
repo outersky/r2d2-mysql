@@ -1,6 +1,6 @@
 //! # r2d2-mysql
 //! MySQL support for the r2d2 connection pool (Rust) . see [`r2d2`](http://github.com/sfackler/r2d2.git)  .
-//! 
+//!
 //! #### Install
 //! Just include another `[dependencies.*]` section into your Cargo.toml:
 //!
@@ -14,18 +14,18 @@
 //! ```
 //! extern crate r2d2_mysql;
 //! extern crate r2d2;
-//! 
+//!
 //! use std::sync::Arc;
 //! use std::thread;
-//! 
+//!
 //! fn main() {
 //! 	let db_url =  "mysql://root:12345678@localhost:3306/test";
 //!     let config = r2d2::config::Builder::new().pool_size(5).build();   // r2d2::Config::default()
 //!     let manager = r2d2_mysql::MysqlConnectionManager::new(db_url).unwrap();
 //!     let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
-//! 
+//!
 //!     let mut tasks = vec![];
-//! 
+//!
 //!     for i in 0..3 {
 //!         let pool = pool.clone();
 //!         let th = thread::spawn(move || {
@@ -35,13 +35,13 @@
 //!         });
 //!         tasks.push(th);
 //!     }
-//! 
+//!
 //!     for th in tasks {
 //!         let _ = th.join();
 //!     }
 //! }
 //! ```
-//! 
+//!
 
 #![doc(html_root_url="http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql/")]
 #![crate_name="r2d2_mysql"]
