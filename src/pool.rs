@@ -6,7 +6,7 @@ use r2d2;
 
 #[derive(Debug)]
 pub struct MysqlConnectionManager {
-    params: String,
+    params: Opts,
 }
 
 
@@ -15,16 +15,12 @@ impl MysqlConnectionManager {
     ///
     /// See `postgres::Connection::connect` for a description of the parameter
     /// types.
-    pub fn new(params: &str)
-            -> Result<MysqlConnectionManager, Error> {
-        Ok(MysqlConnectionManager {
-            params: params.to_owned(),
-        })
+    pub fn new<T: Into<Opts>>(params: T) -> Result<MysqlConnectionManager, Error> {
+        self.param = try!(Opts::from(T));
     }
 
     fn do_connect(&self) -> Result<Conn,Error> {
-        let opts = Opts::from_url(self.params.as_str()).expect("mysql url error!");
-        Conn::new(opts)
+        Conn::new(self.param);
     }
 }
 
