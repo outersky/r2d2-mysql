@@ -1,6 +1,7 @@
 use mysql::error::Error;
 use mysql::conn::Conn;
 use mysql::Opts;
+use mysql::OptsBuilder;
 use std::result::Result;
 use r2d2;
 
@@ -9,18 +10,30 @@ pub struct MysqlConnectionManager {
     params: Opts,
 }
 
+pub trait CreateManager<T> {
+ type Manager;
+ fn new(params: T) -> Result<Self::Manager, Error>;
+}
 
-impl MysqlConnectionManager {
-    /// Creates a new `MysqlConnectionManager`.
-    ///
-    /// See `postgres::Connection::connect` for a description of the parameter
-    /// types.
-    pub fn new<T: Into<Opts>>(params: T) -> Result<MysqlConnectionManager, Error> {
-        self.param = try!(Opts::from(T));
+impl CreateManager<OptsBuilder> for MysqlConnectionManager {
+    type Manager = MysqlConnectionManager;
+     fn new(params: OptsBuilder) -> Result<Self::Manager, Error> {
+         Ok(
+             MysqlConnectionManager {
+                 params: Opts::from(params)
+             }
+         )
     }
+}
 
-    fn do_connect(&self) -> Result<Conn,Error> {
-        Conn::new(self.param);
+impl <'a> CreateManager<&'a str> for MysqlConnectionManager {
+     type Manager = MysqlConnectionManager;
+     fn new(params: &'a str) -> Result<Self::Manager, Error> {
+         Ok(
+             MysqlConnectionManager {
+                 params: Opts::from(params)
+             }
+         )
     }
 }
 
@@ -29,11 +42,11 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
     type Error = Error;
 
     fn connect(&self) -> Result<Conn,Error> {
-    	self.do_connect()
+    	    Conn::new(self.params.clone())
     }
 
     fn is_valid(&self, conn: &mut Conn) -> Result<(), Error> {
-        conn.query("select 1").map(|_| () )
+        conn.query("SELECT version()").map(|_| () )
     }
 
     fn has_broken(&self, conn: &mut Conn) -> bool {
