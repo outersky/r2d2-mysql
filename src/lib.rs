@@ -14,7 +14,7 @@
 //! ```
 //! extern crate r2d2_mysql;
 //! extern crate r2d2;
-//!
+//! use r2d2_mysql::ManageConnection;
 //! use std::sync::Arc;
 //! use std::thread;
 //!
@@ -55,14 +55,14 @@ extern crate r2d2;
 pub mod url;
 pub mod pool;
 
-pub use pool::MysqlConnectionManager;
+pub use pool::{MysqlConnectionManager,CreateManager};
 
 #[cfg(test)]
 mod test {
     use r2d2;
     use std::sync::Arc;
     use std::thread;
-    use super::{MysqlConnectionManager};
+    use super::{MysqlConnectionManager, CreateManager};
 
     const DB_URL : &'static str =  "mysql://root:12345678@localhost:3306/test";
 
