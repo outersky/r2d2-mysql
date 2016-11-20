@@ -11,13 +11,13 @@ pub struct MysqlConnectionManager {
 }
 
 pub trait CreateManager<T> {
- type Manager;
- fn new(params: T) -> Result<Self::Manager, Error>;
+    type Manager;
+    fn new(params: T) -> Result<Self::Manager, Error>;
 }
 
 impl CreateManager<OptsBuilder> for MysqlConnectionManager {
     type Manager = MysqlConnectionManager;
-     fn new(params: OptsBuilder) -> Result<Self::Manager, Error> {
+    fn new(params: OptsBuilder) -> Result<Self::Manager, Error> {
          Ok(
              MysqlConnectionManager {
                  params: Opts::from(params)
@@ -27,13 +27,13 @@ impl CreateManager<OptsBuilder> for MysqlConnectionManager {
 }
 
 impl <'a> CreateManager<&'a str> for MysqlConnectionManager {
-     type Manager = MysqlConnectionManager;
-     fn new(params: &'a str) -> Result<Self::Manager, Error> {
-         Ok(
-             MysqlConnectionManager {
-                 params: Opts::from(params)
-             }
-         )
+    type Manager = MysqlConnectionManager;
+    fn new(params: &'a str) -> Result<Self::Manager, Error> {
+        Ok(
+            MysqlConnectionManager {
+                params: Opts::from(params)
+            }
+        )
     }
 }
 
@@ -42,7 +42,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
     type Error = Error;
 
     fn connect(&self) -> Result<Conn,Error> {
-    	    Conn::new(self.params.clone())
+    	Conn::new(self.params.clone())
     }
 
     fn is_valid(&self, conn: &mut Conn) -> Result<(), Error> {
