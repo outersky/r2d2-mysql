@@ -7,7 +7,6 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use std::io::prelude::*;
 use std::str::FromStr;
 use std::str;
 use serialize::hex::FromHex;
@@ -426,4 +425,3 @@ impl FromStr for Path {
         Path::parse(s)
     }
 }
-
