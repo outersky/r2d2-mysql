@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_mysql"
-version = "8.0.0"
+version = "9.0.0"
 authors = ["outersky <outersky@gmail.com>"]
 license = "MIT"
 documentation = "http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql"
@@ -10,9 +10,8 @@ keywords = ["mysql", "sql", "pool", "database","r2d2"]
 
 
 [dependencies]
-rustc-serialize = "~0.3.22"
-r2d2 = "0.7.1"
+rustc-serialize = "0.3.24"
+r2d2 = "0.8.2"
+mysql = "12.2.0"
 
-[dependencies.mysql]
-version = "8.0.0"
-default-features = false
+
