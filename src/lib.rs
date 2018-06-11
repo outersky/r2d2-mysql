@@ -12,17 +12,20 @@
 //! #### Sample
 //!
 //! ```
+//! extern crate mysql;
 //! extern crate r2d2_mysql;
 //! extern crate r2d2;
 //! use std::sync::Arc;
 //! use std::thread;
-//! use r2d2_mysql::CreateManager;
+//! use mysql::{Opts,OptsBuilder};
+//! use r2d2_mysql::MysqlConnectionManager;
 //!
 //! fn main() {
 //! 	let db_url =  "mysql://root:12345678@localhost:3306/test";
-//!     let config = r2d2::config::Builder::new().pool_size(5).build();   // r2d2::Config::default()
-//!     let manager = r2d2_mysql::MysqlConnectionManager::new(db_url).unwrap();
-//!     let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
+//!     let opts = Opts::from_url(db_url).unwrap();
+//!     let builder = OptsBuilder::from_opts(opts);
+//!     let manager = MysqlConnectionManager::new(builder);
+//!     let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 //!
 //!     let mut tasks = vec![];
 //!
@@ -43,41 +46,54 @@
 //! ```
 //!
 
-#![doc(html_root_url="http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql/")]
-#![crate_name="r2d2_mysql"]
-#![crate_type="rlib"]
-#![crate_type="dylib"]
+#![doc(html_root_url = "http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql/")]
+#![crate_name = "r2d2_mysql"]
+#![crate_type = "rlib"]
+#![crate_type = "dylib"]
 
-extern crate mysql;
 extern crate rustc_serialize as serialize;
-extern crate r2d2;
+pub extern crate mysql;
+pub extern crate r2d2;
 
 pub mod pool;
-
-pub use pool::{MysqlConnectionManager,CreateManager};
+pub use pool::MysqlConnectionManager;
 
 #[cfg(test)]
 mod test {
+    use mysql::{Opts, OptsBuilder};
     use r2d2;
     use std::sync::Arc;
     use std::thread;
-    use super::{MysqlConnectionManager, CreateManager};
+    use super::MysqlConnectionManager;
 
-    const DB_URL : &'static str =  "mysql://root:12345678@localhost:3306/test";
+    const DB_URL: &'static str = "mysql://root:12345678@localhost:3306/test";
 
     #[test]
-    fn query_pool(){
-        let config = r2d2::config::Builder::new().pool_size(30).build();   // r2d2::Config::default()
-        let manager = MysqlConnectionManager::new(DB_URL).unwrap();
-        let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
+    fn query_pool() {
+        let opts = Opts::from_url(DB_URL).unwrap();
+        let builder = OptsBuilder::from_opts(opts);
+        let manager = MysqlConnectionManager::new(builder);
+        let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 
         let mut tasks = vec![];
 
         for _ in 0..3 {
             let pool = pool.clone();
             let th = thread::spawn(move || {
-                let mut conn = pool.get().map_err(|err| println!("get connection from pool error in line:{} ! error: {:?}", line!(), err) ).unwrap();
-                conn.query("select user()").map_err(|err| println!("execute query error in line:{} ! error: {:?}", line!(), err) ).unwrap();
+                let mut conn = pool.get()
+                    .map_err(|err| {
+                        println!(
+                            "get connection from pool error in line:{} ! error: {:?}",
+                            line!(),
+                            err
+                        )
+                    })
+                    .unwrap();
+                conn.query("select user()")
+                    .map_err(|err| {
+                        println!("execute query error in line:{} ! error: {:?}", line!(), err)
+                    })
+                    .unwrap();
             });
             tasks.push(th);
         }
@@ -85,6 +101,5 @@ mod test {
         for th in tasks {
             let _ = th.join();
         }
-
     }
 }
