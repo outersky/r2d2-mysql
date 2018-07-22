@@ -15,14 +15,15 @@
 //! extern crate mysql;
 //! extern crate r2d2_mysql;
 //! extern crate r2d2;
+//! use std::env;
 //! use std::sync::Arc;
 //! use std::thread;
 //! use mysql::{Opts,OptsBuilder};
 //! use r2d2_mysql::MysqlConnectionManager;
 //!
 //! fn main() {
-//! 	let db_url =  "mysql://root:12345678@localhost:3306/test";
-//!     let opts = Opts::from_url(db_url).unwrap();
+//! 	let db_url =  env::var("DATABASE_URL").unwrap();
+//!     let opts = Opts::from_url(&db_url).unwrap();
 //!     let builder = OptsBuilder::from_opts(opts);
 //!     let manager = MysqlConnectionManager::new(builder);
 //!     let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
@@ -51,7 +52,6 @@
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
 
-extern crate rustc_serialize as serialize;
 pub extern crate mysql;
 pub extern crate r2d2;
 
@@ -62,15 +62,15 @@ pub use pool::MysqlConnectionManager;
 mod test {
     use mysql::{Opts, OptsBuilder};
     use r2d2;
+    use std::env;
     use std::sync::Arc;
     use std::thread;
     use super::MysqlConnectionManager;
 
-    const DB_URL: &'static str = "mysql://root:12345678@localhost:3306/test";
-
     #[test]
     fn query_pool() {
-        let opts = Opts::from_url(DB_URL).unwrap();
+        let url = env::var("DATABASE_URL").unwrap();
+        let opts = Opts::from_url(&url).unwrap();
         let builder = OptsBuilder::from_opts(opts);
         let manager = MysqlConnectionManager::new(builder);
         let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
