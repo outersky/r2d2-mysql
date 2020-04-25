@@ -4,7 +4,6 @@ use mysql::Error::DriverError;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
 use r2d2;
-use std::default;
 
 #[derive(Clone, Debug)]
 pub struct MysqlConnectionManager {
