@@ -3,7 +3,7 @@ use mysql::Error::MySqlError;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
 use r2d2;
-use std::defalt;
+use std::default;
 
 #[derive(Clone, Debug)]
 pub struct MysqlConnectionManager {
