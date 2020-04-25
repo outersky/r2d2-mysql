@@ -28,7 +28,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
         if conn.ping() {
             return Ok(());
         } else {
-            return Err(self::Error(None));
+            return Err(r2d2::Error(None));
         }
     }
 
