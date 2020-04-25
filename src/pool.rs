@@ -2,6 +2,7 @@ use mysql::error::Error;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
 use r2d2;
+use std::defalt;
 
 #[derive(Clone, Debug)]
 pub struct MysqlConnectionManager {
@@ -28,7 +29,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
         if conn.ping() {
             return Ok(());
         } else {
-            return Err(r2d2::Error(None));
+            return Err(mysql::error::Error(mysql::error::MySqlError(Default::default())));
         }
     }
 
