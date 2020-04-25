@@ -30,7 +30,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
         if conn.ping() {
             return Ok(());
         } else {
-            return Err(Error(MySqlError(Default::default())));
+            return Err(MySqlError(Default::default()));
         }
     }
 
