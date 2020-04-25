@@ -1,5 +1,5 @@
 use mysql::error::Error;
-use mysql::Error::MySqlError;
+use mysql::Error::DriverError;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
 use r2d2;
@@ -30,7 +30,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
         if conn.ping() {
             return Ok(());
         } else {
-            return Err(MySqlError(Default::default()));
+            return Err(DriverError(DriverError::ConnectTimeout));
         }
     }
 
