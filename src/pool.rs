@@ -1,4 +1,5 @@
 use mysql::error::Error;
+use mysql::error::DriverError::ConnectTimeout;
 use mysql::Error::DriverError;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
