@@ -31,7 +31,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
         if conn.ping() {
             return Ok(());
         } else {
-            return Err(DriverError(DriverError::ConnectTimeout));
+            return Err(DriverError(ConnectTimeout));
         }
     }
 
