@@ -25,7 +25,11 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
     }
 
     fn is_valid(&self, conn: &mut Conn) -> Result<(), Error> {
-        conn.query("SELECT version()").map(|_| ())
+        if conn.ping() {
+            return Ok(());
+        } else {
+            return Err(self::Error(None));
+        }
     }
 
     fn has_broken(&self, conn: &mut Conn) -> bool {
