@@ -1,4 +1,5 @@
-use mysql::error::{MySqlError, Error};
+use mysql::error::Error;
+use mysql::Error::MySqlError;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
 use r2d2;
