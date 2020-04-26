@@ -2,6 +2,7 @@ use mysql::error::Error;
 use mysql::{Conn, Opts, OptsBuilder};
 use std::result::Result;
 use r2d2;
+use mysql::prelude::Queryable;
 
 #[derive(Clone, Debug)]
 pub struct MysqlConnectionManager {
@@ -25,7 +26,7 @@ impl r2d2::ManageConnection for MysqlConnectionManager {
     }
 
     fn is_valid(&self, conn: &mut Conn) -> Result<(), Error> {
-        conn.query("SELECT version()").map(|_| ())
+        conn.query("SELECT version()").map(|_: Vec<String>| ())
     }
 
     fn has_broken(&self, conn: &mut Conn) -> bool {
