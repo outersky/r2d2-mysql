@@ -19,6 +19,7 @@
 //! use std::sync::Arc;
 //! use std::thread;
 //! use mysql::{Opts,OptsBuilder};
+//! use mysql::prelude::Queryable;
 //! use r2d2_mysql::MysqlConnectionManager;
 //!
 //! fn main() {
@@ -61,6 +62,7 @@ pub use pool::MysqlConnectionManager;
 #[cfg(test)]
 mod test {
     use mysql::{Opts, OptsBuilder};
+    use mysql::prelude::Queryable;
     use r2d2;
     use std::env;
     use std::sync::Arc;
@@ -89,11 +91,9 @@ mod test {
                         )
                     })
                     .unwrap();
-                conn.query("select user()")
-                    .map_err(|err| {
-                        println!("execute query error in line:{} ! error: {:?}", line!(), err)
-                    })
-                    .unwrap();
+                let _ = conn.query("SELECT version()").map(|_: Vec<String>| ()).map_err(|err| {
+                    println!("execute query error in line:{} ! error: {:?}", line!(), err)
+                });
             });
             tasks.push(th);
         }
