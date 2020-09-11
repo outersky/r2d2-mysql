@@ -11,6 +11,6 @@ keywords = ["mysql", "sql", "pool", "database","r2d2"]
 
 [dependencies]
 r2d2 = "0.8.2"
-mysql = "18"
+mysql = "19"
 
 
