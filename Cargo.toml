@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_mysql"
-version = "18.0.0"
+version = "20.0.0"
 authors = ["outersky <outersky@gmail.com>"]
 license = "MIT"
 documentation = "http://outersky.github.io/r2d2-mysql/doc/v0.2.0/r2d2_mysql"
@@ -9,5 +9,5 @@ repository = "https://github.com/outersky/r2d2-mysql"
 keywords = ["mysql", "sql", "pool", "database", "r2d2"]
 
 [dependencies]
-r2d2 = "0.8.2"
+r2d2 = "0.8.9"
 mysql = "20"
