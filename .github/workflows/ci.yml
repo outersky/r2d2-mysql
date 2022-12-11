@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [1.59.0, stable, nightly]
+
+    name: tests / ${{ matrix.version }}
+    runs-on: ubuntu-latest
+
+    env:
+      CI: 1
+      CARGO_UNSTABLE_SPARSE_REGISTRY: true
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        run: |
+          rustup install ${{ matrix.version }} --no-self-update --profile minimal --force
+          rustup override set ${{ matrix.version }}
+
+      - run: cargo generate-lockfile
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v2.2.0
+
+      - name: Setup MySQL
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          mysql user: 'ci'
+          mysql password: 'ci'
+
+      - run: cargo test
+        env:
+          DATABASE_URL: mysql://ci:ci@127.0.0.1:3306
