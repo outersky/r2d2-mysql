@@ -33,6 +33,9 @@
 //! }
 //! ```
 
+pub use mysql;
+pub use r2d2;
+
 mod pool;
 pub use self::pool::MySqlConnectionManager;
 #[allow(deprecated)]
