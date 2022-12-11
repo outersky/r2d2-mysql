@@ -1,10 +1,6 @@
-use mysql::error::Error;
-use mysql::{Conn, Opts, OptsBuilder};
-use std::result::Result;
-use r2d2;
-use mysql::prelude::Queryable;
+use mysql::{error::Error, prelude::Queryable, Conn, Opts, OptsBuilder};
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct MysqlConnectionManager {
     params: Opts,
 }

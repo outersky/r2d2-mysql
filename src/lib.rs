@@ -33,12 +33,8 @@
 //! }
 //! ```
 
-#![crate_name = "r2d2_mysql"]
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
-
-pub extern crate mysql;
-pub extern crate r2d2;
 
 pub mod pool;
 pub use pool::MysqlConnectionManager;
