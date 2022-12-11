@@ -1,20 +1,29 @@
-use mysql::prelude::*;
-use mysql::{error::Error, Conn, Opts, OptsBuilder};
+//! Connection manager implementation for MySQL connections.
+//!
+//! See [`MySqlConnectionManager`].
 
+use mysql::{error::Error, prelude::*, Conn, Opts, OptsBuilder};
+
+#[doc(hidden)]
+#[deprecated(since = "23.0.0", note = "Renamed to `MySqlConnectionManager`.")]
+pub type MysqlConnectionManager = MySqlConnectionManager;
+
+/// An [`r2d2`] connection manager for [`mysql`] connections.
 #[derive(Clone, Debug)]
-pub struct MysqlConnectionManager {
+pub struct MySqlConnectionManager {
     params: Opts,
 }
 
-impl MysqlConnectionManager {
-    pub fn new(params: OptsBuilder) -> MysqlConnectionManager {
-        MysqlConnectionManager {
+impl MySqlConnectionManager {
+    /// Constructs a new MySQL connection manager from `params`.
+    pub fn new(params: OptsBuilder) -> MySqlConnectionManager {
+        MySqlConnectionManager {
             params: Opts::from(params),
         }
     }
 }
 
-impl r2d2::ManageConnection for MysqlConnectionManager {
+impl r2d2::ManageConnection for MySqlConnectionManager {
     type Connection = Conn;
     type Error = Error;
 

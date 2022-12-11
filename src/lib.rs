@@ -4,12 +4,12 @@
 //! ```
 //! use std::{env, sync::Arc, thread};
 //! use mysql::{prelude::*, Opts, OptsBuilder};
-//! use r2d2_mysql::MysqlConnectionManager;
+//! use r2d2_mysql::MySqlConnectionManager;
 //!
 //! let url = env::var("DATABASE_URL").unwrap();
 //! let opts = Opts::from_url(&url).unwrap();
 //! let builder = OptsBuilder::from_opts(opts);
-//! let manager = MysqlConnectionManager::new(builder);
+//! let manager = MySqlConnectionManager::new(builder);
 //! let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 //!
 //! let mut tasks = vec![];
@@ -33,8 +33,10 @@
 //! }
 //! ```
 
-pub mod pool;
-pub use pool::MysqlConnectionManager;
+mod pool;
+pub use self::pool::MySqlConnectionManager;
+#[allow(deprecated)]
+pub use self::pool::MysqlConnectionManager;
 
 #[cfg(test)]
 mod test {
@@ -42,14 +44,14 @@ mod test {
 
     use mysql::{prelude::*, Opts, OptsBuilder};
 
-    use super::MysqlConnectionManager;
+    use super::MySqlConnectionManager;
 
     #[test]
     fn query_pool() {
         let url = env::var("DATABASE_URL").unwrap();
         let opts = Opts::from_url(&url).unwrap();
         let builder = OptsBuilder::from_opts(opts);
-        let manager = MysqlConnectionManager::new(builder);
+        let manager = MySqlConnectionManager::new(builder);
         let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 
         let mut tasks = vec![];
