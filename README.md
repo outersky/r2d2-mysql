@@ -10,7 +10,7 @@ Include `r2d2_mysql` in the `[dependencies]` section of your `Cargo.toml`:
 
 ```toml
 [dependencies]
-r2d2_mysql = "22"
+r2d2_mysql = "23"
 ```
 
 ## Usage
@@ -18,13 +18,13 @@ r2d2_mysql = "22"
 ```rust
 use std::{env, sync::Arc, thread};
 use mysql::{prelude::*, Opts, OptsBuilder};
-use r2d2_mysql::MysqlConnectionManager;
+use r2d2_mysql::MySqlConnectionManager;
 
 fn main() {
     let url = env::var("DATABASE_URL").unwrap();
     let opts = Opts::from_url(&url).unwrap();
     let builder = OptsBuilder::from_opts(opts);
-    let manager = MysqlConnectionManager::new(builder);
+    let manager = MySqlConnectionManager::new(builder);
     let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 
     let mut tasks = vec![];
