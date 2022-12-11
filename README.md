@@ -1,8 +1,12 @@
 # r2d2-mysql
 
-> [`rust-mysql-simple`](https://github.com/blackbeam/rust-mysql-simple) support library for the [`r2d2`](https://github.com/sfackler/r2d2) connection pool.
+> [`mysql`](https://github.com/blackbeam/rust-mysql-simple) support library for the [`r2d2`](https://github.com/sfackler/r2d2) connection pool.
 
-Documentation is available at <http://docs.rs/r2d2_mysql>.
+[![crates.io](https://img.shields.io/crates/v/r2d2-mysql?label=latest)](https://crates.io/crates/r2d2-mysql)
+[![Documentation](https://docs.rs/r2d2-mysql/badge.svg?version=23)](https://docs.rs/r2d2-mysql/23)
+![Version](https://img.shields.io/badge/rustc-1.59+-ab6000.svg)
+![License](https://img.shields.io/crates/l/r2d2-mysql.svg)
+[![Download](https://img.shields.io/crates/d/r2d2-mysql.svg)](https://crates.io/crates/r2d2-mysql)
 
 ## Install
 
