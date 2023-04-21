@@ -32,6 +32,18 @@
 //!     let _ = th.join();
 //! }
 //! ```
+//!
+//! # Custom healthcheck
+//! ```
+//! fn healthcheck(
+//!     _: MySqlConnectionManager, 
+//!     conn: &mut mysql::Conn
+//! ) -> Result<(), mysql::Error> {
+//!     conn.query("SELECT 1").map(|_: Vec<String>| ())
+//! }
+//!
+//! let manager = MySqlConnectionManager::with_custom_healthcheck(builder, &healthcheck);
+//! ```
 
 pub use mysql;
 pub use r2d2;
