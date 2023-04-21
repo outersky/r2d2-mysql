@@ -45,7 +45,7 @@ pub use self::pool::MysqlConnectionManager;
 mod test {
     use std::{env, sync::Arc, thread};
 
-    use mysql::{prelude::*, Opts, OptsBuilder};
+    use mysql::{prelude::*, Conn, Error, Opts, OptsBuilder};
 
     use super::MySqlConnectionManager;
 
@@ -76,5 +76,38 @@ mod test {
         for th in tasks {
             let _ = th.join();
         }
+    }
+
+    #[test]
+    fn query_pool_with_custom_healthcheck() {
+        let url = env::var("DATABASE_URL").unwrap();
+        let opts = Opts::from_url(&url).unwrap();
+        let builder = OptsBuilder::from_opts(opts);
+        let manager = MySqlConnectionManager::with_custom_healthcheck(builder, &healthcheck);
+        let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
+
+        let mut tasks = vec![];
+
+        for _ in 0..3 {
+            let pool = pool.clone();
+            let th = thread::spawn(move || {
+                let mut conn = pool.get().expect("error getting connection from pool");
+
+                let _ = conn
+                    .query("SELECT 1")
+                    .map(|rows: Vec<String>| rows.is_empty())
+                    .expect("error executing query");
+            });
+
+            tasks.push(th);
+        }
+
+        for th in tasks {
+            let _ = th.join();
+        }
+    }
+
+    fn healthcheck(_: MySqlConnectionManager, conn: &mut Conn) -> Result<(), Error> {
+        conn.query("SELECT 1").map(|_: Vec<String>| ())
     }
 }
