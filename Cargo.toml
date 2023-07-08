@@ -6,7 +6,8 @@ license = "MIT"
 description = "MySQL support for the r2d2 connection pool"
 repository = "https://github.com/outersky/r2d2-mysql.git"
 keywords = ["mysql", "sql", "pool", "database", "r2d2"]
-edition = "2018"
+edition = "2021"
+rust-version = "1.65"
 
 [dependencies]
 r2d2 = "0.8.9"

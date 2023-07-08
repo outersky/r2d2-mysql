@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [1.59.0, stable, nightly]
+        version: [1.65.0, stable, nightly]
 
     name: tests / ${{ matrix.version }}
     runs-on: ubuntu-latest
