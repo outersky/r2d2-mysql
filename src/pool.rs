@@ -4,10 +4,6 @@
 
 use mysql::{error::Error, prelude::*, Conn, Opts, OptsBuilder};
 
-#[doc(hidden)]
-#[deprecated(since = "23.0.0", note = "Renamed to `MySqlConnectionManager`.")]
-pub type MysqlConnectionManager = MySqlConnectionManager;
-
 /// An [`r2d2`] connection manager for [`mysql`] connections.
 #[derive(Clone, Debug)]
 pub struct MySqlConnectionManager {

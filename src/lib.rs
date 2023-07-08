@@ -3,8 +3,11 @@
 //! # Examples
 //! ```
 //! use std::{env, sync::Arc, thread};
-//! use mysql::{prelude::*, Opts, OptsBuilder};
-//! use r2d2_mysql::MySqlConnectionManager;
+//!
+//! use r2d2_mysql::{
+//!     mysql::{prelude::*, Opts, OptsBuilder},
+//!     r2d2, MySqlConnectionManager,
+//! };
 //!
 //! let url = env::var("DATABASE_URL").unwrap();
 //! let opts = Opts::from_url(&url).unwrap();
@@ -38,8 +41,6 @@ pub use r2d2;
 
 mod pool;
 pub use self::pool::MySqlConnectionManager;
-#[allow(deprecated)]
-pub use self::pool::MysqlConnectionManager;
 
 #[cfg(test)]
 mod test {
