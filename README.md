@@ -1,12 +1,12 @@
-# r2d2-mysql
+# r2d2_mysql
 
 > [`mysql`](https://github.com/blackbeam/rust-mysql-simple) support library for the [`r2d2`](https://github.com/sfackler/r2d2) connection pool.
 
-[![crates.io](https://img.shields.io/crates/v/r2d2-mysql?label=latest)](https://crates.io/crates/r2d2-mysql)
-[![Documentation](https://docs.rs/r2d2-mysql/badge.svg?version=23)](https://docs.rs/r2d2-mysql/23)
+[![crates.io](https://img.shields.io/crates/v/r2d2_mysql?label=latest)](https://crates.io/crates/r2d2_mysql)
+[![Documentation](https://docs.rs/r2d2_mysql/badge.svg?version=24)](https://docs.rs/r2d2_mysql/24)
 ![Version](https://img.shields.io/badge/rustc-1.59+-ab6000.svg)
-![License](https://img.shields.io/crates/l/r2d2-mysql.svg)
-[![Download](https://img.shields.io/crates/d/r2d2-mysql.svg)](https://crates.io/crates/r2d2-mysql)
+![License](https://img.shields.io/crates/l/r2d2_mysql.svg)
+[![Download](https://img.shields.io/crates/d/r2d2_mysql.svg)](https://crates.io/crates/r2d2_mysql)
 
 ## Install
 
@@ -14,15 +14,18 @@ Include `r2d2_mysql` in the `[dependencies]` section of your `Cargo.toml`:
 
 ```toml
 [dependencies]
-r2d2_mysql = "23"
+r2d2_mysql = "24"
 ```
 
 ## Usage
 
 ```rust
 use std::{env, sync::Arc, thread};
-use mysql::{prelude::*, Opts, OptsBuilder};
-use r2d2_mysql::MySqlConnectionManager;
+
+use r2d2_mysql::{
+    mysql::{prelude::*, Opts, OptsBuilder},
+    r2d2, MySqlConnectionManager,
+};
 
 fn main() {
     let url = env::var("DATABASE_URL").unwrap();

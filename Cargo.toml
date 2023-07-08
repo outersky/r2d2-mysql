@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_mysql"
-version = "23.0.0"
+version = "24.0.0"
 authors = ["outersky <outersky@gmail.com>"]
 license = "MIT"
 description = "MySQL support for the r2d2 connection pool"
@@ -10,4 +10,4 @@ edition = "2018"
 
 [dependencies]
 r2d2 = "0.8.9"
-mysql = "23"
+mysql = "24"
