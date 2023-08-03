@@ -5,10 +5,6 @@
 use mysql::{error::Error, prelude::*, Conn, Opts, OptsBuilder};
 use std::{fmt, sync::Arc};
 
-#[doc(hidden)]
-#[deprecated(since = "23.0.0", note = "Renamed to `MySqlConnectionManager`.")]
-pub type MysqlConnectionManager = MySqlConnectionManager;
-
 /// A type for custom healthcheck function.
 type HealthcheckFn =
     dyn Fn(MySqlConnectionManager, &mut Conn) -> Result<(), Error> + Send + Sync + 'static;
