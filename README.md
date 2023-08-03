@@ -56,19 +56,21 @@ fn main() {
 }
 ```
 
-### Custom healthcheck function
+### Custom Health Check
+
 If in case for some reason your server don't support `SELECT version()` you can override the default healthcheck function:
+
 ```rust
 use std::{env, sync::Arc, thread};
 use mysql::{prelude::*, Conn, Error, Opts, OptsBuilder};
 
-fn healthcheck(_: MySqlConnectionManager, conn: &mut Conn) -> Result<(), Error> {
+fn health_check(_: MySqlConnectionManager, conn: &mut Conn) -> Result<(), Error> {
     conn.query("SELECT 1").map(|_: Vec<String>| ())
 }
 
 fn main() {
     // [ .. ]
-    let manager = MySqlConnectionManager::with_custom_healthcheck(builder, &healthcheck);
+    let manager = MySqlConnectionManager::with_custom_health_check(builder, &health_check);
     // [ .. ]
 }
 ```

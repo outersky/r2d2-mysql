@@ -36,16 +36,25 @@
 //! }
 //! ```
 //!
-//! # Custom healthcheck
+//! # Custom Health Check
 //! ```
-//! fn healthcheck(
-//!     _: MySqlConnectionManager, 
+//! # use r2d2_mysql::{
+//! #     mysql::{prelude::*, *},
+//! #     MySqlConnectionManager,
+//! # };
+//! fn health_check(
+//!     _: MySqlConnectionManager,
 //!     conn: &mut mysql::Conn
 //! ) -> Result<(), mysql::Error> {
 //!     conn.query("SELECT 1").map(|_: Vec<String>| ())
 //! }
 //!
-//! let manager = MySqlConnectionManager::with_custom_healthcheck(builder, &healthcheck);
+//! // ...
+//!
+//! # let url = std::env::var("DATABASE_URL").unwrap();
+//! # let opts = mysql::Opts::from_url(&url).unwrap();
+//! # let builder = OptsBuilder::from_opts(opts);
+//! let manager = MySqlConnectionManager::with_custom_health_check(builder, &health_check);
 //! ```
 
 pub use mysql;
@@ -92,11 +101,15 @@ mod test {
     }
 
     #[test]
-    fn query_pool_with_custom_healthcheck() {
+    fn query_pool_with_custom_health_check() {
+        fn health_check(_: MySqlConnectionManager, conn: &mut Conn) -> Result<(), Error> {
+            conn.query("SELECT 1").map(|_: Vec<String>| ())
+        }
+
         let url = env::var("DATABASE_URL").unwrap();
         let opts = Opts::from_url(&url).unwrap();
         let builder = OptsBuilder::from_opts(opts);
-        let manager = MySqlConnectionManager::with_custom_healthcheck(builder, &healthcheck);
+        let manager = MySqlConnectionManager::with_custom_health_check(builder, &health_check);
         let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 
         let mut tasks = vec![];
@@ -118,9 +131,5 @@ mod test {
         for th in tasks {
             let _ = th.join();
         }
-    }
-
-    fn healthcheck(_: MySqlConnectionManager, conn: &mut Conn) -> Result<(), Error> {
-        conn.query("SELECT 1").map(|_: Vec<String>| ())
     }
 }
