@@ -54,7 +54,7 @@
 //! # let url = std::env::var("DATABASE_URL").unwrap();
 //! # let opts = mysql::Opts::from_url(&url).unwrap();
 //! # let builder = OptsBuilder::from_opts(opts);
-//! let manager = MySqlConnectionManager::with_custom_health_check(builder, &health_check);
+//! let manager = MySqlConnectionManager::with_custom_health_check(builder, health_check);
 //! ```
 
 pub use mysql;
@@ -109,7 +109,7 @@ mod test {
         let url = env::var("DATABASE_URL").unwrap();
         let opts = Opts::from_url(&url).unwrap();
         let builder = OptsBuilder::from_opts(opts);
-        let manager = MySqlConnectionManager::with_custom_health_check(builder, &health_check);
+        let manager = MySqlConnectionManager::with_custom_health_check(builder, health_check);
         let pool = Arc::new(r2d2::Pool::builder().max_size(4).build(manager).unwrap());
 
         let mut tasks = vec![];

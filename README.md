@@ -70,7 +70,7 @@ fn health_check(_: MySqlConnectionManager, conn: &mut Conn) -> Result<(), Error>
 
 fn main() {
     // [ .. ]
-    let manager = MySqlConnectionManager::with_custom_health_check(builder, &health_check);
+    let manager = MySqlConnectionManager::with_custom_health_check(builder, health_check);
     // [ .. ]
 }
 ```
