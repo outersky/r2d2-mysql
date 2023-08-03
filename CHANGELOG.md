@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `MySqlConnectionManager::with_custom_health_check()` constructor.
+
 ## 24.0.0
 
 - Update `mysql` dependency to `24`.
