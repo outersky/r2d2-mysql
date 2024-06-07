@@ -2,7 +2,7 @@
 //!
 //! See [`MySqlConnectionManager`].
 
-use mysql::{error::Error, prelude::*, Conn, Opts, OptsBuilder};
+use mysql::{error::Error, Conn, Opts, OptsBuilder};
 
 /// An [`r2d2`] connection manager for [`mysql`] connections.
 #[derive(Clone, Debug)]
@@ -28,7 +28,7 @@ impl r2d2::ManageConnection for MySqlConnectionManager {
     }
 
     fn is_valid(&self, conn: &mut Conn) -> Result<(), Error> {
-        conn.query("SELECT version()").map(|_: Vec<String>| ())
+        conn.ping()
     }
 
     fn has_broken(&self, conn: &mut Conn) -> bool {
