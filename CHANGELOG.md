@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 25.0.0
+
 - Update `mysql` dependency to `25`.
 - Minimum supported Rust version (MSRV) is now 1.70 to align with `mysql` dependency.
 
