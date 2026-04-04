@@ -3,8 +3,8 @@
 > [`mysql`](https://github.com/blackbeam/rust-mysql-simple) support library for the [`r2d2`](https://github.com/sfackler/r2d2) connection pool.
 
 [![crates.io](https://img.shields.io/crates/v/r2d2_mysql?label=latest)](https://crates.io/crates/r2d2_mysql)
-[![Documentation](https://docs.rs/r2d2_mysql/badge.svg?version=24)](https://docs.rs/r2d2_mysql/24)
-![Version](https://img.shields.io/badge/rustc-1.59+-ab6000.svg)
+[![Documentation](https://docs.rs/r2d2_mysql/badge.svg?version=26)](https://docs.rs/r2d2_mysql)
+![Version](https://img.shields.io/badge/rustc-1.81+-ab6000.svg)
 ![License](https://img.shields.io/crates/l/r2d2_mysql.svg)
 [![Download](https://img.shields.io/crates/d/r2d2_mysql.svg)](https://crates.io/crates/r2d2_mysql)
 
