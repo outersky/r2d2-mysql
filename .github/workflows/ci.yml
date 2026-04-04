@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - { name: msrv, version: 1.70.0 }
+          - { name: msrv, version: 1.81.0 }
           - { name: stable, version: stable }
           - { name: nightly, version: nightly }
 
@@ -30,8 +30,13 @@ jobs:
       - name: Setup MySQL
         uses: mirromutth/mysql-action@v1.1
         with:
-          mysql user: 'ci'
-          mysql password: 'ci'
+          mysql user: "ci"
+          mysql password: "ci"
+
+      - name: downgrades for MSRV
+        if: matrix.version.name == 'msrv'
+        run: |
+          cargo update -p=idna_adapter --precise=1.2.0 # next ver: 1.82.0
 
       - run: cargo test
         env:
