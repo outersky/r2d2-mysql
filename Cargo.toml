@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_mysql"
-version = "27.0.0"
+version = "28.0.0"
 authors = ["outersky <outersky@gmail.com>"]
 license = "MIT"
 description = "MySQL support for the r2d2 connection pool"
@@ -11,4 +11,4 @@ rust-version = "1.88"
 
 [dependencies]
 r2d2 = "0.8.9"
-mysql = { version = "27", default-features = false, features = ["minimal"] }
+mysql = { version = "28", default-features = false, features = ["minimal"] }
