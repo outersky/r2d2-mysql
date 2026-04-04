@@ -7,12 +7,18 @@ on:
     branches: [master]
 
 jobs:
+  read_msrv:
+    name: Read MSRV
+    uses: actions-rust-lang/msrv/.github/workflows/msrv.yml@8b553824444060021f2843d7b4d803f3624d15e5 # v0.1.0
+
   test:
+    needs: read_msrv
+
     strategy:
       fail-fast: false
       matrix:
         version:
-          - { name: msrv, version: 1.81.0 }
+          - { name: msrv, version: "${{ needs.read_msrv.outputs.msrv }}" }
           - { name: stable, version: stable }
           - { name: nightly, version: nightly }
 

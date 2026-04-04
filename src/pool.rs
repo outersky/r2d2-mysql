@@ -2,7 +2,7 @@
 //!
 //! See [`MySqlConnectionManager`].
 
-use mysql::{error::Error, Conn, Opts, OptsBuilder};
+use mysql::{Conn, Opts, OptsBuilder, error::Error};
 
 /// An [`r2d2`] connection manager for [`mysql`] connections.
 #[derive(Clone, Debug)]
