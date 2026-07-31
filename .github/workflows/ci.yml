@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Rust (${{ matrix.version.name }})
         uses: actions-rust-lang/setup-rust-toolchain@f3c84ee10bf5a86e7a5d607d487bf17d57670965 # v1.5.0
