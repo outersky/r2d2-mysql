@@ -6,7 +6,7 @@
 
 - Update `mysql` dependency to `27`.
 - Upgrade to Edition 2024.
-- Minimum supported Rust version (MSRV) is now 1.86 to align with `mysql` dependency.
+- Minimum supported Rust version (MSRV) is now 1.88 to align with `mysql` dependency.
 
 ## 26.0.0
 
