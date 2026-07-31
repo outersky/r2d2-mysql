@@ -46,7 +46,7 @@ pub use self::pool::MySqlConnectionManager;
 mod test {
     use std::{env, sync::Arc, thread};
 
-    use mysql::{prelude::*, Opts, OptsBuilder};
+    use mysql::{Opts, OptsBuilder, prelude::*};
 
     use super::MySqlConnectionManager;
 
