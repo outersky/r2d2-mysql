@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 28.0.0
+
+- Update `mysql` dependency to `28`.
+
 ## 27.0.0
 
 - Update `mysql` dependency to `27`.
