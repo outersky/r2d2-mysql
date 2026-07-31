@@ -11,4 +11,4 @@ rust-version = "1.88"
 
 [dependencies]
 r2d2 = "0.8.9"
-mysql = { version = "27", default-features = false, features = ["minimal"] }
+mysql = { version = "28", default-features = false, features = ["minimal"] }
